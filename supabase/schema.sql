@@ -119,5 +119,12 @@ create policy auditoria_crear on public.auditoria for insert with check (usuario
 drop policy if exists auditoria_ver on public.auditoria;
 create policy auditoria_ver on public.auditoria for select using (public.es_admin());
 
+-- Permisos de la API de datos (necesarios cuando el proyecto no expone automáticamente las tablas nuevas).
+-- Las reglas RLS de arriba siguen limitando qué filas ve cada usuario.
+grant usage on schema public to anon, authenticated;
+grant select, insert, update on public.perfiles, public.espacios, public.auditoria to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
+grant execute on function public.es_admin() to authenticated;
+
 -- Para nombrar a otro administrador manualmente (opcional):
 --   update public.perfiles set rol = 'ADMINISTRADOR' where email = 'correo@ejemplo.com';
