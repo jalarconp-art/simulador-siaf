@@ -1,0 +1,40 @@
+PLATAFORMA
+SIAF
+MÓDULOS
+Módulo de Ejecución
+SIAF Operaciones en Línea
+AERAF
+MADAF
+Panel del docente
+Administración de casos
+Inicio
+DOCENTE - DOCENTE ADMINISTRADOR DEL CURSO
+Docente · 000902 - REGION PUNO-SEDE CENTRAL · AF 2022
+Panel del docente
+Aulas y calificaciones
+Auditoría del sistema
+Aulas
+Nombre del aula
+Periodo
+ 
+Crear
+Gabinete CON312 - Grupo F
+2026-II · 0 estudiantes · creada 18/11/2026 01:50:27
+Gabinete CON312 - Grupo F
+2026-II · 0 estudiantes · creada 18/11/2026 01:49:30
+Gabinete CON312 - Grupo F
+2026-II · 0 estudiantes · 0 entregas
+Importar entrega
+Importar lista CSV
+Exportar notas
+Eliminar aula
+El estudiante genera su archivo desde el menú Archivo › Generar archivo de entrega. Al importarlo, el verificador compara sus registros con la solución de los tres casos y asigna una nota sobre 20.
+Código
+Apellidos y nombres
+DNI
+ 
+Agregar
+CÓDIGO	ESTUDIANTE	DNI	ÚLTIMA ENTREGA	PUNTAJE	NOTA	
+Sin estudiantes. Agréguelos, importe una lista CSV (código;nombres;dni) o importe directamente sus entregas.
+Aula creada.
+×

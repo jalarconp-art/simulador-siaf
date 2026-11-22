@@ -1,0 +1,98 @@
+PLATAFORMA
+SIAF
+MÓDULOS
+Módulo de Ejecución
+SIAF Operaciones en Línea
+AERAF
+MADAF
+Administración de casos
+Inicio
+RU20261 - OPERADOR SIAF SIMULADOR
+Operador · 000902 - REGION PUNO-SEDE CENTRAL · AF 2022
+Menú
+Registro
+Consulta
+Reportes
+Certificados
+Compromiso Anual
+Registro SIAF - Compromiso Mensual
+Registro SIAF - Devengado
+Registro SIAF - Girado
+Modificación de Certificación y Compromiso Anual
+Registro SIAF - Determinado
+Registro SIAF - Papeleta T-6 (devolución)
+CP1 · Obra Aymaña (AF 2022)
+Módulos › Ejecución presupuestal › Registro › Certificación
+Expediente del caso
+Verificar
+Ampliar
+CP1 · Obra Aymaña (AF 2022)
+CP2 · GR Altiplano (Casos 1-4)
+CP2 · M.P. Lago Azul (Caso 5)
+CP2 · U.N. Andina del Sur (Caso 6)
+CP3 · Viáticos Municipalidad Provincial
+Obra P.S. Aymaña (Tareas 1 y 2)
+SOLUCIÓN CARGADA
+Fecha del sistema
+Practicar desde cero
+Certificación
+Periodo
+TODOS
+ENERO
+FEBRERO
+MARZO
+ABRIL
+MAYO
+JUNIO
+JULIO
+AGOSTO
+SETIEMBRE
+OCTUBRE
+NOVIEMBRE
+DICIEMBRE
+2022
+1 certificados
+↓
+00233
+ENERO · S/ 7,652,879.09
+APROBADO
+Filas
+25
+1 - 1 de 1
+NUEVO CERTIFICADO
+Cancelar
+Grabar
+Documento
+000 - SIN DOCUMENTO
+086 - MEMORANDUM
+OTRO - OTRO DOCUMENTO (INDICARLO EN LA JUSTIFICACION)
+Número
+Fecha
+Rubro
+18 - CANON Y SOBRECANON, REGALIAS, RENTA DE ADUANAS Y PARTICIPACIONES
+Tipo certificación
+OTROS
+ADQUISICION / PERU COMPRAS
+ADQUISICION / SEACE
+Fuente de financiamiento
+5 - RECURSOS DETERMINADOS
+Dispositivo legal
+(ninguno)
+1-LEY Nº 31953 - INDECI
+2-LEY Nº 31953 - FEN
+Moneda
+S/. - (NUEVO SOL)
+Tipo cambio
+1.0000000000
+Monto
+0.00
+Justificación
+Caracteres permitidos en la justificación: letras, números, espacios y ( / ) ( . ) ( \ ) ( Ñ ) ( $ ) ( % ) ( Nº ) ( ; ) ( , ) ( : ) ( á é í ó ú ) ( ) y guion.
+▸ Consulta de PCA (seguimiento por genérica)
+CLASIFICADOR
+CLASIFICADOR	SALDO PCA	MONTO ORIGEN
+Debe registrar clasificador.
+META
+Agregar
+S. FUNC	CLASIFICADOR	SALDO PIM	MONTO ORIGEN	
+No registra meta.

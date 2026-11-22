@@ -1,0 +1,30 @@
+PLATAFORMA
+SIAF
+MÓDULOS
+Módulo de Ejecución
+SIAF Operaciones en Línea
+AERAF
+MADAF
+Administración de casos
+Inicio
+OPP20261 - PRESUPUESTO RESPONSABLE OPP
+Presupuesto (OPP) · 000902 - REGION PUNO-SEDE CENTRAL · AF 2022
+SIAF Operaciones en Línea
+SEGURIDAD
+Usuarios de operadores
+MÓDULO PRESUPUESTAL UE
+Aprobación de solicitudes de certificación
+Aprobación de modificaciones de certificación
+Perfil: OPP
+SIAF Operaciones en Línea › Aprobación de solicitudes de certificación
+Aprobación de solicitudes de certificación
+El responsable de la OPP aprueba o rechaza los certificados enviados desde el Módulo de Ejecución
+Procesar
+Entidad
+000902 - REGION PUNO-SEDE CENTRAL (AF 2022)
+000999 - SEDE CENTRAL (AF 2026)
+301999 - MUNICIPALIDAD PROVINCIAL DE LAGO AZUL (AF 2026)
+001999 - UNIVERSIDAD NACIONAL ANDINA DEL SUR (AF 2026)
+301998 - MUNICIPALIDAD PROVINCIAL (AF 2026)
+APROBAR	RECHAZAR	CERTIFICADO	SEC.	TIPO	DOCUMENTO	FECHA	RUBRO	MONTO
+No hay registros pendientes de aprobación (estado ENVIADO A OPP).

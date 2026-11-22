@@ -1,0 +1,92 @@
+{
+  "name": "siaf-web-simulador",
+  "productName": "SIAF-WEB Simulador",
+  "version": "2.2.0",
+  "description": "Entorno de práctica de la Plataforma SIAF-SP con arquitectura por capas: dominio, servicios, SQLite y React",
+  "author": "Gabinete de Contabilidad y Gestión Pública - UNA Puno",
+  "license": "UNLICENSED",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.webapp.json",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "dist": "electron-vite build && electron-builder --win nsis --x64",
+    "dev:web": "vite --config vite.web.config.ts",
+    "build:web": "vite build --config vite.web.config.ts",
+    "preview:web": "vite preview --config vite.web.config.ts",
+    "typecheck:web": "tsc --noEmit -p tsconfig.webapp.json",
+    "test:web": "npm run build:web && playwright test -c playwright.web.config.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.45.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "sql.js": "1.11.0",
+    "zod": "3.23.8",
+    "zustand": "4.5.5"
+  },
+  "devDependencies": {
+    "@fontsource/alegreya-sans": "5.0.13",
+    "@playwright/test": "1.48.2",
+    "@types/node": "20.16.11",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@types/sql.js": "1.4.9",
+    "@vitejs/plugin-react": "4.3.3",
+    "electron": "31.7.7",
+    "electron-builder": "24.13.3",
+    "electron-vite": "2.3.0",
+    "typescript": "5.5.4",
+    "vite": "5.4.10",
+    "vitest": "2.1.4"
+  },
+  "build": {
+    "appId": "pe.siafweb.simulador",
+    "productName": "SIAF-WEB Simulador",
+    "copyright": "Uso académico",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "out/**/*",
+      "package.json",
+      "resources/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/sql.js/dist/*.wasm"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "SIAF-WEB Simulador",
+      "uninstallDisplayName": "SIAF-WEB Simulador",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerLanguages": [
+        "es_ES"
+      ],
+      "language": "3082",
+      "artifactName": "SIAF-WEB-Simulador-Setup-${version}.exe",
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}

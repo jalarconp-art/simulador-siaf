@@ -1,0 +1,96 @@
+PLATAFORMA
+SIAF
+MÓDULOS
+Módulo de Ejecución
+SIAF Operaciones en Línea
+AERAF
+MADAF
+Administración de casos
+Inicio
+RU20261 - OPERADOR SIAF SIMULADOR
+Operador · 301998 - MUNICIPALIDAD PROVINCIAL · AF 2026
+Menú
+Registro
+Consulta
+Reportes
+Certificados
+Compromiso Anual
+Registro SIAF - Compromiso Mensual
+Registro SIAF - Devengado
+Registro SIAF - Girado
+Modificación de Certificación y Compromiso Anual
+Registro SIAF - Determinado
+Registro SIAF - Papeleta T-6 (devolución)
+CP3 · Viáticos Municipalidad Provincial
+Módulos › Ejecución presupuestal › Registro › Compromiso Mensual
+Expediente del caso
+Verificar
+Ampliar
+CP1 · Obra Aymaña (AF 2022)
+CP2 · GR Altiplano (Casos 1-4)
+CP2 · M.P. Lago Azul (Caso 5)
+CP2 · U.N. Andina del Sur (Caso 6)
+CP3 · Viáticos Municipalidad Provincial
+Rendición de viáticos y pasajes - comisión a Lima (3 días)
+SOLUCIÓN CARGADA
+Fecha del sistema
+Practicar desde cero
+Compromiso Mensual
+Periodo
+TODOS
+ENERO
+FEBRERO
+MARZO
+ABRIL
+MAYO
+JUNIO
+JULIO
+AGOSTO
+SETIEMBRE
+OCTUBRE
+NOVIEMBRE
+DICIEMBRE
+2026
+1 expedientes
+↓
+01275
+CA 00121 · AV · MENDOZA CARLOS (GERENTE DE
+APROBADO
+Filas
+25
+1 - 1 de 1
+NUEVO EXPEDIENTE
+Cancelar
+Siguiente ›
+DETALLES DEL EXPEDIENTE
+Entidad
+301998 - MUNICIPALIDAD PROVINCIAL
+Destino / Origen
+5000 - TESORO PÚBLICO
+Tipo de operación
+(se carga al elegir el compromiso anual)
+Exp. Encargo
+Exp. Fin. Temporal
+ 
+Modalidad de compra
+CA - LEY DE CONTRATACIONES DEL ESTADO
+NA - NO APLICA (PLANILLAS, ENCARGOS, VIATICOS, SENTENCIAS)
+AM - ACUERDO MARCO - PERU COMPRAS
+CC - CAJA CHICA
+Tipo proc. sel.
+NO APLICA
+18 - ADJUDICACION SIN PROCESO
+ADJUDICACION SIMPLIFICADA
+LICITACION PUBLICA
+CONCURSO PUBLICO
+CONTRATACION DIRECTA
+SUBASTA INVERSA ELECTRONICA
+COMPARACION DE PRECIOS
+Si el monto es menor a 8 UIT (S/ 44,000.00) no amerita proceso de selección: elija 18 - Adjudicación sin proceso.
+Fase contractual
+Área
+0000 - MUNICIPALIDAD PROVINCIAL
+COMPROMISO ANUAL
+Compromisos anuales aprobados por comprometer
+	CA Nº	CERTIFICADO	TIPO OP.	PROVEEDOR	MONTO CA	SALDO POR COMPROMETER
+No hay compromisos anuales aprobados con saldo. Registre y apruebe primero el compromiso anual.

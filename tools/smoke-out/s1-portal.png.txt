@@ -1,0 +1,32 @@
+SIAF
+PLATAFORMA SIAF-SP
+Sistema Integrado de Administración Financiera del Sector Público
+
+Módulo de Ejecución Presupuestal · Plataforma SIAF-WEB
+
+Certificación de crédito presupuestario y compromiso anual
+Compromiso mensual, devengado, girado y pagado
+Determinado y recaudado de ingresos
+Módulo contable en tres capas y verificación automática
+18/11/2026 · 01:48:55
+Entorno de práctica académica · datos almacenados en este equipo
+Iniciar sesión
+
+Ingrese sus credenciales de operador para acceder a la plataforma.
+
+Usuario
+Contraseña
+Ingresar
+
+Perfiles iniciales: RU20261 / siaf2026 (operador) · OPP20261 / opp2026 (presupuesto) · DOCENTE / docente2026 (docente).
+
+OTROS APLICATIVOS
+SIAF Operaciones en Línea
+Usuarios de operadores y aprobación de certificaciones (requiere sesión)
+›
+AERAF
+Acreditación de responsables de la administración financiera (DNIe)
+›
+MADAF
+Autorización de certificaciones, compromisos, devengados y giros (DNIe)
+›

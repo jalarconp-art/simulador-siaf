@@ -1,0 +1,113 @@
+PLATAFORMA
+SIAF
+MÓDULOS
+Módulo de Ejecución
+SIAF Operaciones en Línea
+AERAF
+MADAF
+Administración de casos
+Inicio
+RU20261 - OPERADOR SIAF SIMULADOR
+Operador · 000902 - REGION PUNO-SEDE CENTRAL · AF 2022
+Menú
+Registro
+Consulta
+Reportes
+Certificados
+Compromiso Anual
+Registro SIAF - Compromiso Mensual
+Registro SIAF - Devengado
+Registro SIAF - Girado
+Modificación de Certificación y Compromiso Anual
+Registro SIAF - Determinado
+Registro SIAF - Papeleta T-6 (devolución)
+CP1 · Obra Aymaña (AF 2022)
+Módulos › Ejecución presupuestal › Registro › Certificación
+Expediente del caso
+Verificar
+Ampliar
+CP1 · Obra Aymaña (AF 2022)
+CP2 · GR Altiplano (Casos 1-4)
+CP2 · M.P. Lago Azul (Caso 5)
+CP2 · U.N. Andina del Sur (Caso 6)
+CP3 · Viáticos Municipalidad Provincial
+Obra P.S. Aymaña (Tareas 1 y 2)
+SOLUCIÓN CARGADA
+Fecha del sistema
+Practicar desde cero
+Certificación
+Periodo
+TODOS
+ENERO
+FEBRERO
+MARZO
+ABRIL
+MAYO
+JUNIO
+JULIO
+AGOSTO
+SETIEMBRE
+OCTUBRE
+NOVIEMBRE
+DICIEMBRE
+2022
+1 certificados
+↓
+00233
+ENERO · S/ 7,652,879.09
+APROBADO
+0001 INICIAL · 5,959,341.13 APROBADO
+0002 AMPLIACION · 1,693,537.96 APROBADO
+Filas
+25
+1 - 1 de 1
+CERTIFICADO Nº 00233
+Secuencia 0001 · ADQUISICION / SEACE · APROBADO
+Monto certificado
+7,652,879.09
+Ampliaciones
+1,693,537.96
+Rebajas / anulación
+0.00
+Comprometido (CA)
+7,652,879.09
+Saldo
+0.00
+Detalle
+Modificaciones (1)
+Documento
+086 - MEMORANDUM
+Número
+100-2021-GR-PUNO/ORA/OASA
+Fecha
+18/10/2021
+Rubro
+18 - CANON Y SOBRECANON, REGALIAS, RENTA DE ADUANAS Y PARTICIPACIONES
+Fuente de financiamiento
+5 - RECURSOS DETERMINADOS
+Tipo certificación
+ADQUISICION / SEACE
+Dispositivo legal
+—
+Moneda
+S/. - (NUEVO SOL)
+Justificación
+EJECUCION DE LA OBRA MEJORAMIENTO DE LA CAPACIDAD RESOLUTIVA DEL PUESTO DE SALUD DE AYMAÑA DEL CENTRO POBLADO DE AYMAÑA, DISTRITO DE CORANI, PROVINCIA DE CARABAYA, DEPARTAMENTO DE PUNO, CUI 2308220
+Estado registro
+APROBADO
+Fecha de registro
+19/01/2022
+Fecha aprobación
+19/01/2022
+Autorizado por
+RESPONSABLE DE PRUEBA
+CLASIFICADOR
+CLASIFICADOR	DESCRIPCIÓN	SALDO PCA	MONTO
+2.6.2.2.3.2	COSTO DE CONSTRUCCION POR CONTRATA	240,658.87	5,959,341.13
+2.6.3.2.4.2	EQUIPOS	56,462.04	1,693,537.96
+META
+S. FUNC	CLASIF.	SALDO PIM	MONTO	SALDO POR COMPROMETER
+0902	2.6.2.2.3.2	240,658.87	5,959,341.13	0.00
+0902	2.6.3.2.4.2	56,462.04	1,693,537.96	0.00
+Ver Nota de Certificación
+Ir a Compromiso Anual ›

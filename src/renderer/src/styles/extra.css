@@ -1,0 +1,77 @@
+/* Complementos de la versión React */
+.java-w { margin: -18px; text-align: left; }
+.java-w .jh { background: linear-gradient(#f4f6f8, #dde4e9); padding: 9px 14px; font-weight: 700; border-bottom: 1px solid #c9d3da; border-radius: 10px 10px 0 0; }
+.java-w .jb { padding: 12px 16px; }
+.java-w .mact { padding: 0 16px 14px; }
+.mailbox { border: 1px solid var(--line); border-radius: 8px; margin: -4px 0 12px; text-align: left; overflow: hidden; }
+.mailbox .mailh { background: var(--p700); color: #fff; padding: 6px 12px; font-weight: 600; font-size: 12.5px; border-radius: 0; }
+.mailbox .mailb { padding: 8px 12px; font-size: 12.5px; }
+.mailbox pre { white-space: pre-wrap; font-family: inherit; margin: 0 0 6px; }
+.mailbox .code { font-size: 20px; font-weight: 800; letter-spacing: 4px; color: var(--p700); user-select: none; -webkit-user-select: none; }
+.docente { padding: 18px max(16px, 3vw); height: calc(100vh - 56px); overflow: auto; }
+.dc-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.dc-head .tabs { margin: 0; border: 0; }
+.dc-grid { display: grid; grid-template-columns: minmax(300px, 380px) 1fr; gap: 14px; margin-top: 12px; }
+.nota-ok { color: var(--ok); } .nota-mal { color: var(--bad); }
+.welcome { height: calc(100vh - 56px); overflow: auto; }
+.lhero.sm { padding-top: 20px; }
+.casebar select:first-child { max-width: 230px; }
+.modal .umenu { margin: -8px; }
+.paper .ph td, .paper .pinfo td { font-size: 11px; }
+.paper .i0 { padding-left: 6px; } .paper .i1 { padding-left: 16px; } .paper .i2 { padding-left: 26px; } .paper .i3 { padding-left: 36px; } .paper .i4 { padding-left: 46px; } .paper .i5 { padding-left: 56px; }
+.tile.big { min-width: 230px; flex: 1 1 230px; max-width: 320px; }
+.wtiles { display: flex; flex-wrap: wrap; gap: 14px; }
+@media (max-width: 1100px) { .dc-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Identidad visual SIAF-SP: turquesa institucional, acciones en rojo, menú activo beige ---------- */
+:root { --siaf: #0e8ab5; --siaf2: #0b7aa1; --rojo: #e8402f; --beige: #e4d9b4; --rosa: #fde4e4; }
+.topbar { background: var(--siaf); box-shadow: 0 1px 4px rgba(0, 0, 0, .18); }
+.menu { background: var(--siaf); }
+.menu .mh { background: var(--siaf2); }
+.menu a.on { background: var(--beige); color: #333; border-left-color: var(--rojo); }
+.menu .msel select { color: #333; }
+.btn-p { background: var(--rojo); box-shadow: 0 2px 6px rgba(232, 64, 47, .28); }
+.btn-o { color: var(--rojo); border-color: var(--rojo); }
+.btn-o:hover { background: #fff4f2; }
+.plus { background: var(--rojo); box-shadow: 0 3px 8px rgba(232, 64, 47, .3); }
+.li.on { background: var(--rosa); color: var(--rojo); }
+.li.on .lib small { color: #b8574c; }
+.tbl tr.sel td { background: var(--rosa); }
+.tabs a.on { color: var(--rojo); border-bottom-color: var(--rojo); }
+.card.form { border-top-color: var(--siaf); }
+.sums .hi { background: var(--siaf); }
+h3.sec { background: var(--siaf); }
+.lp-search { border-color: #cfe3ec; background: #f5fafc; }
+.pt-brand { background: linear-gradient(160deg, #0b7aa1, var(--siaf) 55%, #2bb0de); }
+.pt-logo { color: var(--siaf); }
+.lg-av { background: var(--siaf); }
+.tile .tic, .tile.big .tic { background: var(--siaf); }
+.lg-tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--line); margin: 4px 0 6px; }
+.lg-tabs a { padding: 7px 12px; font-weight: 700; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; }
+.lg-tabs a.on { color: var(--rojo); border-bottom-color: var(--rojo); }
+.lg-card .two-f { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+.lg-card .two-f .f { margin: 8px 0; }
+.lg-ok { color: var(--ok); font-size: 12px; }
+
+/* ---------- logotipo ---------- */
+.siaf-logo { display: inline-flex; align-items: center; gap: 8px; line-height: 1; user-select: none; }
+.siaf-logo-t { display: flex; flex-direction: column; }
+.siaf-logo-t b { font-weight: 800; letter-spacing: 1px; }
+.siaf-logo-t small { font-size: 8.5px; letter-spacing: 1.6px; opacity: .85; margin-top: 2px; font-weight: 700; }
+.logo { flex-direction: row !important; }
+.pt-logo-w { display: inline-flex; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .25); border-radius: 12px; padding: 10px 16px; }
+
+/* ---------- acceso con Google ---------- */
+.btn-google { width: 100%; justify-content: center; height: 42px; background: #fff; color: #3c4043; border: 1px solid #dadce0; font-weight: 600; margin-top: 10px; }
+.btn-google:hover { background: #f8f9fa; }
+.lg-sep { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; margin: 14px 0 4px; }
+.lg-sep::before, .lg-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+/* ---------- administrador de usuarios ---------- */
+.perm-tbl td.c, .perm-tbl th.c { text-align: center; width: 90px; }
+.perm-tbl tr.g td { background: var(--p50); font-weight: 700; color: var(--p800); font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
+.rol-chip { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #e3f3f9; color: #0b7aa1; }
+.rol-chip.ADMINISTRADOR { background: #fde4e4; color: #c0392b; }
+.usr-grid { display: grid; grid-template-columns: minmax(420px, 1.3fr) minmax(380px, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 1100px) { .usr-grid { grid-template-columns: 1fr; } }
+.plat-web .solo-escritorio { display: none !important; }
