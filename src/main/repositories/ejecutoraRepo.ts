@@ -72,7 +72,8 @@ export class EjecutoraRepo {
       estado: s(m.estado) as Estado, fecha: s(m.fecha), mes: n(m.mes), fechaAprob: s(m.fecha_aprob), aut: s(m.aut), t: n(m.t)
     }));
     const provs = this.bd.todos('SELECT * FROM proveedores WHERE ejecutora=? ORDER BY rowid', [id]).map(p => ({ tipo: s(p.tipo), num: s(p.num), nom: s(p.nombre) }));
-    return { id: casoDe(id), modo: s(e.modo) as Ejecutora['modo'], sub: s(e.sub), fechaSis: s(e.fecha_sis), seq: JSON.parse(s(e.seq) || '{}'), tick: n(e.tick), certs, cas, exps, ings, mods, provs };
+    const aux = this.bd.todos('SELECT * FROM registros_aux WHERE ejecutora=? ORDER BY t', [id]).map(a => ({ id: s(a.id), tipo: s(a.tipo), num: n(a.num), mes: n(a.mes), fecha: s(a.fecha), estado: s(a.estado) as Estado, datos: JSON.parse(s(a.datos) || '{}'), t: n(a.t) }));
+    return { aux, id: casoDe(id), modo: s(e.modo) as Ejecutora['modo'], sub: s(e.sub), fechaSis: s(e.fecha_sis), seq: JSON.parse(s(e.seq) || '{}'), tick: n(e.tick), certs, cas, exps, ings, mods, provs };
   }
 
   /** Reemplaza todas las filas de la ejecutora dentro de una transacción. */
@@ -113,6 +114,7 @@ export class EjecutoraRepo {
         bd.run('INSERT INTO ingresos (id, ejecutora, num, sub, mes, ff, rubro, t) VALUES (?,?,?,?,?,?,?,?)', [g.id, ej.id, g.num, g.sub, g.mes, g.ff, g.rubro, g.t]);
         g.secs.forEach(q => { bd.run('INSERT INTO ing_secuencias (id, ing_id, sec, fase, estado, fecha, mes, doc_cod, doc_serie, doc_num, doc_fecha, notas, tipo_pago, fecha_aprob, aut, t) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [q.id, g.id, q.sec, q.fase, q.estado, q.fecha, q.mes, q.doc.cod, q.doc.serie, q.doc.num, q.doc.fecha, q.notas, q.tipoPago, q.fechaAprob, q.aut, q.t]); items('ing_sec', q.id, q.items); });
       });
+      (ej.aux || []).forEach(a => bd.run('INSERT INTO registros_aux (id, ejecutora, tipo, num, mes, fecha, estado, datos, t) VALUES (?,?,?,?,?,?,?,?,?)', [a.id, ej.id, a.tipo, a.num, a.mes, a.fecha, a.estado, JSON.stringify(a.datos), a.t]));
       ej.mods.forEach(m => bd.run('INSERT INTO modificaciones (id, ejecutora, num, tipo, ref_id, campo, antes, despues, estado, fecha, mes, fecha_aprob, aut, t) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
         [m.id, ej.id, m.num, m.tipo, m.refId, m.campo, m.antes, m.despues, m.estado, m.fecha, m.mes, m.fechaAprob, m.aut, m.t]));
     });

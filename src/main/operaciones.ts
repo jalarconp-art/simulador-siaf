@@ -6,6 +6,7 @@ import { GastoService } from './services/gastoService';
 import { IngresoService, ModificacionService } from './services/ingresoService';
 import { FlujoService } from './services/flujoService';
 import { AerafService, DocenteService, EjecutoraService } from './services/adminServices';
+import { AuxService } from './services/auxService';
 import { S } from '@shared/comandos';
 import type { Resultado, Target } from '@shared/types';
 import { ErrorNegocio } from '@shared/domain/reglas';
@@ -17,7 +18,7 @@ export type TablaOperaciones = Record<string, (...a: any[]) => unknown>;
 export class Nucleo {
   readonly ctx: Contexto;
   readonly gasto: GastoService; readonly ingreso: IngresoService; readonly modificacion: ModificacionService;
-  readonly flujo: FlujoService; readonly ejecutoras: EjecutoraService; readonly aeraf: AerafService; readonly docente: DocenteService;
+  readonly flujo: FlujoService; readonly ejecutoras: EjecutoraService; readonly aeraf: AerafService; readonly docente: DocenteService; readonly auxiliar: AuxService;
   constructor(readonly bd: BaseDatos) {
     this.ctx = new Contexto(bd);
     this.gasto = new GastoService(this.ctx);
@@ -27,6 +28,7 @@ export class Nucleo {
     this.ejecutoras = new EjecutoraService(this.ctx);
     this.aeraf = new AerafService(this.ctx, () => this.flujo.aeraf);
     this.docente = new DocenteService(this.ctx);
+    this.auxiliar = new AuxService(this.ctx);
   }
 
   operacionesComunes(): TablaOperaciones {
@@ -73,6 +75,9 @@ export class Nucleo {
       'aeraf.autorizar': ids => this.aeraf.autorizar(z.array(z.string()).parse(ids)),
       'aeraf.baja': ids => this.aeraf.baja(z.array(z.string()).parse(ids)),
       'aeraf.confirmarEmail': id => this.aeraf.confirmarEmail(str(id)),
+      'aux.grabar': d => this.auxiliar.grabar(z.object({ ejecutora: z.string(), tipo: z.string(), id: z.string().optional(), datos: z.record(z.string(), z.string()) }).parse(d)),
+      'aux.enviar': (x, t, id) => this.auxiliar.enviar(str(x), str(t), str(id)),
+      'aux.descartar': (x, t, id) => this.auxiliar.descartar(str(x), str(t), str(id)),
       'entrega.generar': (c, n) => this.docente.generarEntrega(str(c), str(n)),
       'sistema.info': () => ({ version: this.bd.version })
     };

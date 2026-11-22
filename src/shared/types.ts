@@ -53,10 +53,12 @@ export interface Modificacion {
   estado: Estado; fecha: string; mes: number; fechaAprob: string; aut: string; t: number;
 }
 export type ModoEjecutora = 'solucion' | 'practica' | 'vacio';
+/** Registro de las opciones complementarias del Módulo de Ejecución (cuentas, CCI, viáticos, convenios...). */
+export interface RegAux { id: string; tipo: string; num: number; mes: number; fecha: string; estado: Estado; datos: Record<string, string>; t: number }
 export interface Ejecutora {
   id: string; modo: ModoEjecutora; sub: string; fechaSis: string; seq: Record<string, number>; tick: number;
   certs: Certificado[]; cas: CompromisoAnual[]; exps: Expediente[]; ings: Ingreso[]; mods: Modificacion[];
-  provs: Persona[];
+  provs: Persona[]; aux?: RegAux[];
 }
 
 /* ---------- definición declarativa de los casos ---------- */

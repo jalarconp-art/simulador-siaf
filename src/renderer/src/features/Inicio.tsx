@@ -20,16 +20,14 @@ export function Bienvenida() {
       <span className="w-k">Bienvenido(a)</span><h2>{sesion.usuario.nombres} {sesion.usuario.apellidos}</h2>
       <div className="w-meta">
         <div><small>Fecha y hora de acceso</small><b>{sesion.inicio}</b></div>
-        <div><small>Unidad ejecutora</small><select className="ctl" value={ejecutoraId} onChange={e => setEjecutora(e.target.value)}>{CTX_ORDER.map(x => <option key={x} value={x}>{CASOS[x].entidad.secEjec} - {CASOS[x].entidad.ueNom} ({CASOS[x].grupo})</option>)}</select></div>
+        <div><small>Unidad ejecutora</small><select className="ctl" value={ejecutoraId} onChange={e => setEjecutora(e.target.value)}>{CTX_ORDER.map(x => <option key={x} value={x}>{CASOS[x].entidad.secEjec} - {CASOS[x].entidad.ueNom}</option>)}</select></div>
         <div><small>Año fiscal</small><b>{d.anio}</b></div>
-        <div><small>Estado</small><b>{ej ? { solucion: 'Solución cargada', practica: 'En práctica', vacio: 'Sin datos' }[ej.modo] : '...'}</b></div>
       </div>
       <div className="wtiles">
-        {OPCIONES.some(o => o.k !== 'opp' && puede(sesion.usuario, o.k, 'C')) && tile('grid', 'Módulo Ejecución Presupuestal', 'Certificados · Compromiso Anual · Registro SIAF', () => ir('ejecucion'))}
+        {OPCIONES.some(o => o.k !== 'opp' && puede(sesion.usuario, o.k, 'C')) && tile('grid', 'Ejecucion Presupuestal', 'Certificación · Compromiso Anual · Registro SIAF · Consultas · Reportes', () => ir('ejecucion'))}
         {tile('gear', 'SIAF Operaciones en Línea', esAdmin(sesion.usuario) ? 'Administrador de usuarios y aprobaciones de presupuesto' : 'Aprobación de certificaciones y modificaciones', () => ir('opl'))}
         {tile('sign', 'MADAF', 'Autorizaciones con DNIe', () => ir('madaf'))}
         {tile('card', 'AERAF', 'Acreditación de responsables', () => ir('aeraf'))}
-        {tile('layers', 'Administración de casos', 'Soluciones y ejecutoras de práctica', () => ir('casos'))}
         {esAdmin(sesion.usuario) && tile('users', 'Panel del administrador', 'Avance de usuarios, calificaciones y auditoría', () => ir('docente'))}
       </div></div></div>
   </>;

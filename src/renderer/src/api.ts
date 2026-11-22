@@ -44,6 +44,11 @@ export const api = {
   t6: { grabar: (d: CmdIn<'t6Grabar'>) => llamar<number>('t6.grabar', d) },
   det: { grabar: (d: CmdIn<'detGrabar'>) => llamar<number>('det.grabar', d) },
   rec: { grabar: (d: CmdIn<'recGrabar'>) => llamar<number>('rec.grabar', d) },
+  aux: {
+    grabar: (d: { ejecutora: string; tipo: string; id?: string; datos: Record<string, string> }) => llamar<{ id: string; num: number }>('aux.grabar', d),
+    enviar: (x: string, tipo: string, id: string) => llamar<void>('aux.enviar', x, tipo, id),
+    descartar: (x: string, tipo: string, id: string) => llamar<void>('aux.descartar', x, tipo, id)
+  },
   mod: { grabar: (d: CmdIn<'modGrabar'>) => llamar<number>('mod.grabar', d) },
   flujo: { enviar: (t: Target) => llamar<void>('flujo.enviar', t), descartar: (t: Target) => llamar<void>('flujo.descartar', t), automatico: () => llamar<boolean>('flujo.automatico'), setAutomatico: (v: boolean) => llamar<void>('flujo.setAutomatico', v) },
   opp: { procesar: (x: string, a: Target[], r: Target[]) => llamar<{ aprobados: number; rechazados: number }>('opp.procesar', x, a, r) },

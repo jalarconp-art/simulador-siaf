@@ -54,20 +54,33 @@ test('portada de la plataforma, clic en SIAF y credenciales inválidas', async (
   await expect(page.locator('.sl-form .err')).toContainText('incorrectos');
 });
 
-test('el trabajador entra con su usuario y el Caso Práctico 1 viene cargado y verifica al 100 %', async () => {
+test('el trabajador entra con su usuario y ve el menú del SIAF-WEB, sin caso cargado', async () => {
   await login('RU20261', 'Quispe2026');
   await expect(page.locator('.wcard h2')).toContainText('ROSA ELENA');
-  await page.locator('.tile', { hasText: 'Módulo Ejecución' }).click();
-  await expect(page.locator('.casebar select').first().locator('option')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Verificar' }).click();
-  await expect(page.locator('h3.sec').first()).toContainText('(100%)');
-});
-
-test('certificación en práctica: grabar, enviar, aprobar en la OPP y firmar en el MADAF', async () => {
-  await page.getByRole('button', { name: 'Practicar desde cero' }).click(); await confirmar();
-  await expect(page.locator('.mode')).toContainText('MODO PRÁCTICA');
+  await page.locator('.tile', { hasText: 'Ejecucion Presupuestal' }).click();
+  await expect(page.locator('.casebar')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Verificar' })).toHaveCount(0);
+  await expect(page.locator('.menu .mitems a')).toHaveCount(21);
+  await expect(page.locator('.menu .mitems a').last()).toHaveText('Modificación de Solicitud de Viático y Encargo Interno');
+  await page.locator('.msel select').selectOption('Consultas');
+  await expect(page.locator('.menu .mitems a')).toHaveText(['Contratos', 'Asignación de Tesoro Público']);
+  await page.locator('.msel select').selectOption('Reportes');
+  await expect(page.locator('.menu .mitems a')).toHaveText(['Certificación y Compromiso Anual', 'Formatos SIAF', 'Transferencia Interbancaria']);
+  await page.locator('.menu a', { hasText: 'Certificación y Compromiso Anual' }).click();
+  await expect(page.locator('.detail h3')).toHaveText('Generar Reporte');
   await page.locator('.msel select').selectOption('Registro');
-  await page.locator('.menu a', { hasText: 'Certificados' }).click();
+  await page.locator('.menu a', { hasText: 'Cuenta Interbancaria (CCI)' }).click();
+  await page.locator('.plus').click();
+  const f = page.locator('.card.form');
+  await f.locator('input').nth(0).fill('41526371'); await f.locator('input').nth(1).fill('Quispe Mamani Rosa Elena'); await f.locator('input').nth(2).fill('01812300012345678901');
+  await page.getByRole('button', { name: 'Grabar' }).click(); await confirmar();
+  await expect(page.locator('.toast', { hasText: 'Se ha registrado correctamente' }).first()).toBeVisible();
+  await page.locator('.detail .btn', { hasText: 'Enviar' }).click(); await confirmar();
+  await expect(page.locator('.dh .badge')).toHaveText('APROBADO');
+});
+test('certificación en práctica: grabar, enviar, aprobar en la OPP y firmar en el MADAF', async () => {
+  await page.locator('.msel select').selectOption('Registro');
+  await page.locator('.menu a', { hasText: /^Certificación$/ }).click();
   await page.locator('.plus').click();
   const form = page.locator('.card.form');
   await form.locator('select').first().selectOption('086');
@@ -107,9 +120,8 @@ test('certificación en práctica: grabar, enviar, aprobar en la OPP y firmar en
 
 test('otro trabajador no ve lo registrado por el primero', async () => {
   await salir(); await login('RU20262', 'Condori2026');
-  await expect(page.locator('.wcard')).toContainText('Solución cargada');
-  await page.locator('.tile', { hasText: 'Módulo Ejecución' }).click();
-  await expect(page.locator('.mode')).toContainText('SOLUCIÓN CARGADA');
+  await page.locator('.tile', { hasText: 'Ejecucion Presupuestal' }).click();
+  await expect(page.locator('.lp-list')).toContainText('No hay registros');
 });
 
 test('registro de una cuenta nueva con correo electrónico', async () => {

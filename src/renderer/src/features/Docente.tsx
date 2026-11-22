@@ -27,7 +27,7 @@ function Avance() {
     <table className="tbl"><thead><tr><th>Usuario</th><th>Apellidos y nombres</th><th>Correo</th><th>Estado del espacio</th><th className="r">Registros</th><th className="r">Avance</th><th className="r">Nota</th></tr></thead><tbody>
       {l.map(u => <tr key={u.usuario}><td className="mono">{u.usuario}</td><td>{u.nombre}</td><td className="sm">{u.email}</td><td>{MODO[u.modo] || u.modo}</td><td className="r">{u.registros}</td><td className="r">{fmt(u.puntaje)} %</td><td className="r"><b className={u.nota20 >= 10.5 ? 'nota-ok' : 'nota-mal'}>{fmt(u.nota20)}</b></td></tr>)}
       {!l.length && <tr><td colSpan={7} className="c muted">Aún no hay usuarios operadores.</td></tr>}</tbody></table>
-    <Nota>Un usuario con el caso resuelto cargado aparece con 100 %. Para evaluar, pida a cada trabajador «Practicar desde cero» y registre todas las fases.</Nota></Card>;
+    <Nota>La nota compara lo que cada usuario registró en su espacio con el expediente de referencia de la obra P.S. Aymaña (certificación, compromiso anual, compromiso mensual, devengado y girado).</Nota></Card>;
 }
 
 function Aulas() {

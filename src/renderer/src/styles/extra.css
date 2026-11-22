@@ -75,6 +75,39 @@ h3.sec { background: var(--siaf); }
 .usr-grid { display: grid; grid-template-columns: minmax(420px, 1.3fr) minmax(380px, 1fr); gap: 14px; align-items: start; }
 @media (max-width: 1100px) { .usr-grid { grid-template-columns: 1fr; } }
 .plat-web .solo-escritorio { display: none !important; }
+/* ---------- Módulo de Ejecución como el SIAF-WEB: menú con cabecera oscura y opción activa gris ---------- */
+.menu { background: #1396c6; width: 262px; }
+.menu .mh { background: #3a3a3a; padding: 12px 10px; font-size: 13px; font-weight: 700; }
+.menu .mh button { font-size: 18px; line-height: 1; }
+.menu .msel { position: relative; background: #3a3a3a; padding: 4px 6px 10px; }
+.menu .msel select { padding-left: 34px; font-weight: 500; color: #333; height: 32px; }
+.msel-i { position: absolute; left: 18px; top: 11px; color: #555; z-index: 1; pointer-events: none; }
+.msel-i .ico { width: 15px; height: 15px; }
+.mitems { flex: 1; overflow: auto; }
+.menu a { padding: 10px 8px; font-size: 13px; border-left: 0; border-bottom: 0; }
+.menu a.on { background: #d9d9d9; color: #444; border-left: 0; font-weight: 600; }
+.menu a:hover:not(.on) { background: rgba(255, 255, 255, .1); }
+.topbar .logo .siaf-logo-t b { font-size: 25px !important; }
+.mods select { font-size: 13.5px; }
+.crumbs { color: #666; font-size: 13px; padding: 10px 16px; }
+.crumbs i { font-style: normal; margin: 0 4px; color: #888; }
+.crumbs b { color: #222; font-weight: 700; }
+.lp-busq { padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 8px; overflow: auto; }
+.lp-busq .f label { font-size: 13px; color: #444; }
+.lp-btns { display: flex; flex-direction: column; gap: 8px; }
+.lp-btns.fila { flex-direction: row; }
+.lp-btns .btn { justify-content: center; }
+.lp-btns .btn-g { background: #eef0f2; border-color: #eef0f2; color: #444; }
+.lp-btns .btn-o { color: var(--sp-boton); border-color: var(--sp-boton); }
+.lp-per.sola { padding: 0; margin: 2px 0 4px; }
+.lp-filtro { display: flex; padding: 6px 14px; border-bottom: 1px solid var(--line); }
+.lp-filtro label { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); width: 100%; }
+.lp-filtro select { flex: 1; }
+.listp .lp-head b { font-size: 15px; color: #222; }
+.plus { background: var(--sp-boton) !important; box-shadow: none !important; border-radius: 6px; }
+.btn-p { background: var(--sp-boton) !important; }
+.empty .eic { background: #dcdee1; color: #666; border-radius: 8px; }
+.empty h3 { font-weight: 700; }
 .siaf-pl { letter-spacing: 2.4px; font-weight: 600; opacity: .85; margin-bottom: 1px; }
 
 /* ---------- Portada de la Plataforma SIAF-SP ---------- */

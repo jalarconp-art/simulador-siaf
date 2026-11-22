@@ -10,7 +10,7 @@ export const docDe = (d: string[]): Doc => d.length === 4 ? { cod: d[0], serie: 
 
 export function ejecutoraVacia(id: string, modo: ModoEjecutora = 'vacio'): Ejecutora {
   const d = CASOS[id];
-  return { id, modo, sub: d.subcasos[0].id, fechaSis: d.subcasos[0].ops[0].fecha, seq: { ...d.seq }, tick: 0, certs: [], cas: [], exps: [], ings: [], mods: [], provs: d.proveedores.map(p => ({ tipo: p[0], num: p[1], nom: p[2] })) };
+  return { id, modo, sub: d.subcasos[0].id, fechaSis: d.subcasos[0].ops[0].fecha, seq: { ...d.seq }, tick: 0, certs: [], cas: [], exps: [], ings: [], mods: [], provs: d.proveedores.map(p => ({ tipo: p[0], num: p[1], nom: p[2] })), aux: [] };
 }
 function correlativo(ej: Ejecutora, k: string, forzado?: number): number {
   if (forzado) { if (forzado > (ej.seq[k] || 0)) ej.seq[k] = forzado; return forzado; }

@@ -46,7 +46,7 @@ describe('Base de datos y repositorio', () => {
     const a2 = await Aplicacion.iniciar(f);
     expect(a2.ctx.usuarios.contar()).toBe(5);
     expect(a2.ctx.clavesFisicas().length).toBe(5);
-    expect(a2.bd.version).toBe(2);
+    expect(a2.bd.version).toBe(3);
     a2.bd.cerrar(); fs.unlinkSync(f);
   });
   it('revierte la transacción si la operación falla', () => {
@@ -58,10 +58,10 @@ describe('Base de datos y repositorio', () => {
 });
 
 describe('Usuarios y seguridad', () => {
-  it('crea el docente y cuatro trabajadores, cada uno con su espacio y el caso cargado', () => {
+  it('crea el administrador y cuatro trabajadores, cada uno con su espacio vacío como el SIAF real', () => {
     const ops = USUARIOS_INICIALES.filter(u => u.rol === 'OPERADOR');
     expect(ops.length).toBe(4);
-    for (const u of ops) { entrar(u.usuario); const e = ej(); expect(e.modo).toBe('solucion'); expect(e.certs[0].num).toBe(233); }
+    for (const u of ops) { entrar(u.usuario); const e = ej(); expect(e.certs).toEqual([]); expect(e.aux).toEqual([]); }
   });
   it('rechaza credenciales incorrectas y exige sesión', () => {
     expect(falla('sesion.login', 'RU20261', 'mala')).toContain('incorrectos');
@@ -75,7 +75,7 @@ describe('Usuarios y seguridad', () => {
     const s = ok('sesion.registrar', { apellidos: 'Mamani Huanca', nombres: 'Elena', dni: '45678901', email: 'Elena.Mamani@correo.pe', clave: 'Elena2026' });
     expect(s.usuario.rol).toBe('OPERADOR');
     expect(s.usuario.email).toBe('elena.mamani@correo.pe');
-    expect(ej().modo).toBe('solucion');
+    expect(ej().certs).toEqual([]);
     ok('sesion.logout');
     expect(falla('sesion.registrar', { apellidos: 'Otro', nombres: 'Otro', dni: '45678902', email: 'elena.mamani@correo.pe', clave: 'Otra12345' })).toContain('correo');
     expect(falla('sesion.registrar', { apellidos: 'Otro', nombres: 'Otro', dni: '45678903', email: 'otro@correo.pe', clave: 'corta' })).toContain('8 caracteres');
@@ -104,7 +104,7 @@ describe('Perfiles SIAF y permisos asignados por el administrador', () => {
     const u = ok('usuarios.perfil', idDe('RU20262'), 'CONSULTA', { cert: 'C', ca: 'C', cm: 'C', dev: 'C', gir: 'C', mod: 'C', det: 'C', cont: 'C', opp: 'C' });
     expect(u.rol).toBe('CONSULTA');
     entrar('RU20262');
-    expect(ej().certs.length).toBeGreaterThan(0);
+    expect(ej().certs).toEqual([]);
     expect(falla('cert.grabar', { ejecutora: 'cp1', doc: { cod: '086', num: '1', fecha: '18/10/2021' }, rubro: '18', tipoCert: 'OTROS', justif: 'PRUEBA', items: [{ clas: '2.6.2.2.3.2', meta: '0902', monto: 10 }] })).toContain('Certificación');
   });
   it('Logística registra certificados pero no devengados ni aprobaciones OPP', () => {
@@ -127,7 +127,7 @@ describe('Perfiles SIAF y permisos asignados por el administrador', () => {
     const s = app.loginGoogle({ sub: 'g-123', email: 'Nuevo.Usuario@gmail.com', nombres: 'Nuevo', apellidos: 'Usuario' });
     expect(s.usuario.proveedor).toBe('google');
     expect(s.usuario.rol).toBe('OPERADOR');
-    expect(ej().modo).toBe('solucion');
+    expect(ej().certs).toEqual([]);
     ok('sesion.logout');
     const v = app.loginGoogle({ sub: 'g-999', email: 'rquispe@regionpuno.gob.pe', nombres: 'Rosa', apellidos: 'Quispe' });
     expect(v.usuario.usuario).toBe('RU20261');
@@ -170,7 +170,7 @@ describe('Aislamiento entre usuarios', () => {
     expect(ej().certs.map(c => c.justif)).toEqual(['CERTIFICADO DE ROSA']);
     entrar('RU20262');
     const otro = ej();
-    expect(otro.modo).toBe('solucion');
+    expect(otro.certs).toEqual([]);
     expect(otro.certs.some(c => c.justif === 'CERTIFICADO DE ROSA')).toBe(false);
     entrar('RU20261');
     expect(ej().certs.length).toBe(1);
@@ -251,6 +251,7 @@ describe('Flujo completo del Caso Práctico 1 en modo práctica', () => {
   });
   it('modificación de justificación aprobada por la OPP se aplica al certificado', () => {
     entrar('RU20264');
+    ok('ejecutora.solucion', 'cp1');
     const c = ej().certs[0];
     ok('mod.grabar', { ejecutora: 'cp1', tipo: 'CERT', refId: c.id, campo: 'Justificación', valor: 'NUEVA JUSTIFICACION' });
     const m = ej().mods[0];
@@ -263,6 +264,7 @@ describe('Flujo completo del Caso Práctico 1 en modo práctica', () => {
 describe('Docente', () => {
   it('califica una entrega: la solución obtiene 20', () => {
     entrar('ADMIN');
+    ok('ejecutora.solucion', 'cp1');
     const aula = ok('aula.crear', 'Gabinete CON312 - Grupo F', '2026-II');
     expect(ok('aula.importarCSV', aula.id, 'codigo;nombres;dni\n201234;Alarcon Poma Jheny;40000099\n201235;Kevin Mamani;')).toBe(2);
     const entrega = ok('entrega.generar', '201234', 'Alarcon Poma Jheny');
@@ -271,11 +273,39 @@ describe('Docente', () => {
     expect(ok('aula.entregas', aula.id).length).toBe(1);
   });
   it('ve el avance de cada trabajador en su propio espacio', () => {
+    entrar('RU20261'); ok('ejecutora.solucion', 'cp1');
     entrar('RU20262'); ok('ejecutora.practicar', 'cp1');
     entrar('ADMIN');
     const p = ok('docente.progreso');
     expect(p.length).toBe(4);
     expect(p.find((x: any) => x.usuario === 'RU20262').nota20).toBe(0);
     expect(p.find((x: any) => x.usuario === 'RU20261').nota20).toBe(20);
+  });
+});
+
+describe('Opciones complementarias del menú Registro', () => {
+  it('registra, valida, envía y descarta (cuenta interbancaria y viáticos)', () => {
+    entrar('RU20261');
+    expect(falla('aux.grabar', { ejecutora: 'cp1', tipo: 'cci', datos: { tipoDoc: '01 - DNI', numDoc: '41526371', nombres: 'Quispe', banco: 'BANCO DE LA NACION', cci: '123' } })).toContain('20 dígitos');
+    const r = ok('aux.grabar', { ejecutora: 'cp1', tipo: 'cci', datos: { tipoDoc: '01 - DNI', numDoc: '41526371', nombres: 'Quispe Mamani Rosa', banco: 'BANCO DE LA NACION', cci: '01812300012345678901' } });
+    expect(r.num).toBe(1);
+    expect(ej().aux![0].datos.nombres).toBe('QUISPE MAMANI ROSA');
+    ok('aux.enviar', 'cp1', 'cci', r.id);
+    expect(ej().aux![0].estado).toBe('APROBADO');
+    expect(falla('aux.descartar', 'cp1', 'cci', r.id)).toContain('REGISTRADO');
+    expect(falla('aux.grabar', { ejecutora: 'cp1', tipo: 'via', datos: { tipoSolicitud: 'VIATICO NACIONAL', dni: '41526371', meta: '0902', nombres: 'Quispe', destino: 'Lima', salida: '10/03/2022', retorno: '08/03/2022', clasificador: '2.3.2.1.2.2 - VIATICOS Y ASIGNACIONES POR COMISION DE SERVICIO', monto: '960', motivo: 'Comision' } })).toContain('retorno');
+    const v = ok('aux.grabar', { ejecutora: 'cp1', tipo: 'via', datos: { tipoSolicitud: 'VIATICO NACIONAL', dni: '41526371', meta: '0902', nombres: 'Quispe', destino: 'Lima', salida: '10/03/2022', retorno: '12/03/2022', clasificador: '2.3.2.1.2.2 - VIATICOS Y ASIGNACIONES POR COMISION DE SERVICIO', monto: '960', motivo: 'Comision de servicios' } });
+    ok('aux.descartar', 'cp1', 'via', v.id);
+    expect(ej().aux!.find(x => x.id === v.id)!.estado).toBe('DESCARTADO');
+  });
+  it('los registros complementarios también son propios de cada usuario y respetan los permisos', () => {
+    entrar('RU20261');
+    ok('aux.grabar', { ejecutora: 'cp1', tipo: 'area', datos: { codigo: '0001', descripcion: 'Oficina de Abastecimiento' } });
+    entrar('RU20262');
+    expect(ej().aux).toEqual([]);
+    entrar('ADMIN');
+    ok('usuarios.perfil', (ok('usuarios.listar') as any[]).find(x => x.usuario === 'RU20262').id, 'CONTABILIDAD', { dev: 'O', cont: 'O', cert: 'C', ca: 'C', cm: 'C', gir: 'C', mod: 'C', det: 'C', opp: 'C' });
+    entrar('RU20262');
+    expect(falla('aux.grabar', { ejecutora: 'cp1', tipo: 'area', datos: { codigo: '0002', descripcion: 'Tesoreria' } })).toContain('Compromiso Anual');
   });
 });

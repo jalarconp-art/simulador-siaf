@@ -4,6 +4,8 @@ import { hashClave } from '../services/authService';
 import { hoy, hora, uid } from '@shared/util';
 import type { Rol } from '@shared/types';
 import { permisosDeRol } from '@shared/permisos';
+import { ejecutoraVacia } from '@shared/domain/fabrica';
+import { casoDe } from '../repositories/ejecutoraRepo';
 
 export interface UsuarioInicial { usuario: string; clave: string; dni: string; apellidos: string; nombres: string; rol: Rol; email: string; cargo: string }
 
@@ -16,12 +18,15 @@ export const USUARIOS_INICIALES: UsuarioInicial[] = [
 ];
 
 /** Versión de la siembra: v2 separa los espacios por usuario y deja solo el Caso Práctico 1. */
-const VERSION_SIEMBRA = '3';
+const VERSION_SIEMBRA = '4';
 
 export function sembrar(ctx: Contexto): void {
   if (ctx.meta.get('siembra') === VERSION_SIEMBRA) return;
   ctx.bd.transaccion(() => {
     const ahora = hoy() + ' ' + hora();
+    /* v4: como en el SIAF real, cada espacio empieza sin registros (se quita el caso precargado) */
+    const previa = Number(ctx.meta.get('siembra') || '0');
+    if (previa && previa < 4) ctx.clavesFisicas().forEach(k => ctx.ejecutoras.guardar(ejecutoraVacia(casoDe(k), 'practica'), k));
     /* datos compartidos de versiones anteriores: se eliminan (cada usuario tendrá su propia copia) */
     ctx.ejecutoras.eliminarCompartidas();
     ctx.responsables.eliminarCompartidos();
@@ -34,7 +39,7 @@ export function sembrar(ctx: Contexto): void {
     if (!ctx.meta.get('aprobacion_automatica')) ctx.meta.set('aprobacion_automatica', '0');
     ctx.meta.set('sembrado', '1');
     ctx.meta.set('siembra', VERSION_SIEMBRA);
-    ctx.auditar('sistema.inicializar', '', 'sistema', 'Usuarios iniciales y espacios por usuario (Caso Práctico 1: CUI 2308220 Aymaña)');
+    ctx.auditar('sistema.inicializar', '', 'sistema', 'Usuarios iniciales y espacios por usuario (ejecutora sin registros)');
   });
   /* el espacio de cada usuario inicial se crea de inmediato para que todos arranquen con el caso cargado */
   ctx.usuarios.listar().forEach(u => ctx.asegurarEspacio(u.id));

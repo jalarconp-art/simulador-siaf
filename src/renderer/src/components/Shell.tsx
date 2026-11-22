@@ -3,12 +3,8 @@ import type { ReactNode } from 'react';
 import { useApp, type AppId, type Pantalla } from '../store';
 import { Icon } from './Icon';
 import { Btn, Lista } from './ui';
-import { CASOS, CTX_ORDER } from '@shared/casos';
+import { CASOS } from '@shared/casos';
 import { CAT, MESES } from '@shared/catalogo';
-import { okDate } from '@shared/util';
-import { api } from '../api';
-import { intentar } from '../store';
-import { confirmar } from './Dialogos';
 import { menuUsuario } from '../features/Usuario';
 import { esAdmin, puede, ROL_TXT } from '@shared/permisos';
 import type { Opcion } from '@shared/types';
@@ -22,60 +18,55 @@ export function Topbar({ app }: { app: AppId }) {
   const u = sesion?.usuario;
   return <header className="topbar">
     <button className="hamb" onClick={alternarMenu}><Icon n="menu" /></button>
-    <div className="logo" onClick={() => ir('bienvenida')}><Logo /></div>
+    <div className="logo" onClick={() => ir('bienvenida')}><Logo simulador={false} plataforma /></div>
     <div className="mods"><small>MÓDULOS</small>
       <select value={app} onChange={e => ir(e.target.value as AppId)}>
-        <option value="ejecucion">Módulo de Ejecución</option><option value="opl">SIAF Operaciones en Línea</option>
+        <option value="ejecucion">Ejecucion Presupuestal</option><option value="opl">SIAF Operaciones en Línea</option>
         <option value="aeraf">AERAF</option><option value="madaf">MADAF</option>
         {esAdmin(u) && <option value="docente">Panel del administrador</option>}
-        <option value="casos">Administración de casos</option><option value="bienvenida">Inicio</option>
+        <option value="bienvenida">Inicio</option>
       </select></div>
     <div className="tb-sp" />
-    <div className="tb-user" onClick={menuUsuario}><div><b>{u?.usuario} - {u?.apellidos} {u?.nombres}</b><small>{ROL_TXT[u?.rol || '']} · {d.entidad.secEjec} - {d.entidad.ueNom} · AF {d.anio}</small></div><Icon n="chevron" /></div>
+    <div className="tb-user" onClick={menuUsuario} title={ROL_TXT[u?.rol || '']}><div><b>{u?.dni && u.dni !== '00000000' ? u.dni : u?.usuario} - {u?.nombres} {u?.apellidos}</b><small>{d.entidad.secEjec} - {d.entidad.ueNom}</small></div><Icon n="chevron" /></div>
   </header>;
 }
 
-export const PANTALLAS: Record<Pantalla, [string, string, string]> = {
-  cert: ['Certificados', 'Registro', 'Certificación'], ca: ['Compromiso Anual', 'Registro', 'Compromiso Anual'], cm: ['Registro SIAF - Compromiso Mensual', 'Registro', 'Compromiso Mensual'],
-  dev: ['Registro SIAF - Devengado', 'Registro', 'Devengado'], gir: ['Registro SIAF - Girado', 'Registro', 'Girado'], mod: ['Modificación de Certificación y Compromiso Anual', 'Registro', 'Modificación'],
-  det: ['Registro SIAF - Determinado', 'Registro', 'Determinado / Recaudado'], t6: ['Registro SIAF - Papeleta T-6 (devolución)', 'Registro', 'Papeleta T-6'],
-  cont: ['Módulo Contable', 'Consulta', 'Módulo Contable'], ver: ['Verificar mi registro', 'Consulta', 'Verificación'], clas: ['Clasificadores presupuestarios 2026', 'Consulta', 'Clasificadores'],
-  cat: ['Catálogo de apoyo', 'Consulta', 'Catálogo'], rep: ['Notas y reportes', 'Reportes', 'Reportes']
+type Grupo = 'Registro' | 'Consultas' | 'Reportes';
+/** Menú del Módulo de Ejecución Presupuestal tal como aparece en el SIAF-WEB: [opción del menú, grupo, migas]. */
+export const PANTALLAS: Record<Pantalla, [string, Grupo, string]> = {
+  cert: ['Certificación', 'Registro', 'Certificación'], ca: ['Compromiso Anual', 'Registro', 'Compromiso Anual'],
+  cm: ['Registro SIAF - Compromiso Mensual', 'Registro', 'Registro SIAF - Compromiso Mensual'], dev: ['Registro SIAF - Devengado', 'Registro', 'Registro SIAF - Devengado'],
+  gir: ['Registro SIAF - Girado', 'Registro', 'Registro SIAF - Girado'], mod: ['Modificación de Certificación y Compromiso Anual', 'Registro', 'Modificación de Certificación y Compromiso Anual'],
+  modexp: ['Modificación Expediente', 'Registro', 'Modificación Expediente'], det: ['Registro SIAF - Determinado', 'Registro', 'Registro SIAF - Determinado'],
+  rec: ['Registro SIAF - Recaudado', 'Registro', 'Registro SIAF - Recaudado'], ren: ['Rendición', 'Registro', 'Rendición'], reasig: ['Reasignacion', 'Registro', 'Reasignación'],
+  apcta: ['Solicitud de Apertura de Cuenta Bancaria', 'Registro', 'Solicitud de Apertura de Cuenta Bancaria'], ope: ['Beneficiario OPE', 'Registro', 'Beneficiario OPE'],
+  t6: ['Hoja de Trabajo T6', 'Registro', 'Hoja de Trabajo T6'], area: ['Area', 'Registro', 'Área'], ctas: ['Cuentas Bancarias', 'Registro', 'Cuentas Bancarias'],
+  cci: ['Cuenta Interbancaria (CCI)', 'Registro', 'Cuenta Interbancaria (CCI)'], conv: ['Convenios', 'Registro', 'Convenios'], via: ['Viáticos y Encargos Internos', 'Registro', 'Viáticos y Encargos Internos'],
+  dliq: ['Distribución de la Liquidación del Viático - Encargo Interno', 'Registro', 'Distribución de la Liquidación del Viático - Encargo Interno'],
+  modvia: ['Modificación de Solicitud de Viático y Encargo Interno', 'Registro', 'Modificación de solicitud de viático y encargo interno'],
+  contratos: ['Contratos', 'Consultas', 'Contratos'], atp: ['Asignación de Tesoro Público', 'Consultas', 'Asignación de Tesoro Público'],
+  repcca: ['Certificación y Compromiso Anual', 'Reportes', 'Certificación Y Compromiso Anual'], rep: ['Formatos SIAF', 'Reportes', 'Formatos SIAF'], transf: ['Transferencia Interbancaria', 'Reportes', 'Transferencia Interbancaria']
 };
 /** Opción del administrador que habilita cada pantalla (las demás son de consulta libre). */
-const OPCION_PANTALLA: Partial<Record<Pantalla, Opcion>> = { cert: 'cert', ca: 'ca', cm: 'cm', dev: 'dev', gir: 'gir', t6: 'gir', mod: 'mod', det: 'det', cont: 'cont', rep: 'cont' };
+const OPCION_PANTALLA: Partial<Record<Pantalla, Opcion>> = {
+  cert: 'cert', ca: 'ca', cm: 'cm', dev: 'dev', gir: 'gir', t6: 'gir', mod: 'mod', modexp: 'mod', det: 'det', rec: 'det', ren: 'dev', reasig: 'cm',
+  apcta: 'gir', ope: 'gir', ctas: 'gir', cci: 'gir', area: 'ca', conv: 'ca', via: 'cm', dliq: 'dev', modvia: 'cm', repcca: 'cont', rep: 'cont', transf: 'cont'
+};
+export const pantallaVisible = (u: Parameters<typeof puede>[0], k: Pantalla) => !OPCION_PANTALLA[k] || puede(u, OPCION_PANTALLA[k]!, 'C');
 export function MenuLateral() {
-  const { pantalla, irPantalla, ejecutoraId, sesion } = useApp();
+  const { pantalla, irPantalla, sesion, alternarMenu } = useApp();
   const grupo = PANTALLAS[pantalla][1];
-  const visible = (k: Pantalla) => !OPCION_PANTALLA[k] || puede(sesion?.usuario, OPCION_PANTALLA[k]!, 'C');
-  const items = (Object.keys(PANTALLAS) as Pantalla[]).filter(k => PANTALLAS[k][1] === grupo && visible(k));
-  return <aside className="menu"><div className="mh"><span>Menú</span></div>
-    <div className="msel"><select value={grupo} onChange={e => irPantalla((Object.keys(PANTALLAS) as Pantalla[]).find(k => PANTALLAS[k][1] === e.target.value)!)}>{['Registro', 'Consulta', 'Reportes'].map(g => <option key={g}>{g}</option>)}</select></div>
-    {items.map(k => <a key={k} className={pantalla === k ? 'on' : ''} onClick={() => irPantalla(k)}>{PANTALLAS[k][0]}</a>)}
-    <div className="mfoot">{CASOS[ejecutoraId].corto}</div></aside>;
+  const items = (Object.keys(PANTALLAS) as Pantalla[]).filter(k => PANTALLAS[k][1] === grupo && pantallaVisible(sesion?.usuario, k));
+  const primera = (g: string) => (Object.keys(PANTALLAS) as Pantalla[]).find(k => PANTALLAS[k][1] === g && pantallaVisible(sesion?.usuario, k)) || 'cert';
+  return <aside className="menu"><div className="mh"><span>Menu</span><button onClick={alternarMenu} title="Ocultar menú">«</button></div>
+    <div className="msel"><span className="msel-i"><Icon n="doc" /></span><select value={grupo} onChange={e => irPantalla(primera(e.target.value))}>{['Registro', 'Consultas', 'Reportes'].map(g => <option key={g}>{g}</option>)}</select></div>
+    <div className="mitems">{items.map(k => <a key={k} className={pantalla === k ? 'on' : ''} onClick={() => irPantalla(k)}>{PANTALLAS[k][0]}</a>)}</div></aside>;
 }
 export function Migas() {
-  const { pantalla, alternarGuia, irPantalla, alternarMenu } = useApp();
+  const { pantalla } = useApp();
   const s = PANTALLAS[pantalla];
-  return <div className="crumbs"><span>Módulos › Ejecución presupuestal › {s[1]} › <b>{s[2]}</b></span>
-    <span className="crr"><Btn sm icon="book" onClick={alternarGuia}>Expediente del caso</Btn><Btn sm icon="check" onClick={() => irPantalla('ver')}>Verificar</Btn><button className="lnk" onClick={alternarMenu}>Ampliar</button></span></div>;
+  return <div className="crumbs"><span>Módulos <i>&gt;</i> Ejecución presupuestal <i>&gt;</i> {s[1]} <i>&gt;</i> <b>{s[2]}</b></span></div>;
 }
-export function BarraCaso() {
-  const { ej, ejecutoraId, setEjecutora, sesion } = useApp();
-  const d = CASOS[ejecutoraId];
-  if (!ej) return null;
-  const modo = { solucion: 'SOLUCIÓN CARGADA', practica: 'MODO PRÁCTICA', vacio: 'SIN DATOS' }[ej.modo];
-  return <div className="casebar">
-    <select value={ejecutoraId} onChange={e => setEjecutora(e.target.value)} title="Unidad ejecutora">{CTX_ORDER.map(x => <option key={x} value={x}>{CASOS[x].corto}</option>)}</select>
-    <select value={ej.sub} onChange={e => intentar(() => api.ejecutora.subcaso(ejecutoraId, e.target.value))}>{d.subcasos.map(s => <option key={s.id} value={s.id}>{s.titulo}</option>)}</select>
-    <span className={'mode m-' + ej.modo}>{modo}</span>
-    <label className="fsis">Fecha del sistema <input className="ctl sm" defaultValue={ej.fechaSis} key={ej.fechaSis} onBlur={e => { const v = e.target.value; if (v !== ej.fechaSis) { if (!okDate(v)) { useApp.getState().avisar('Fecha inválida (dd/mm/aaaa)', 'err'); e.target.value = ej.fechaSis; return; } intentar(() => api.ejecutora.fecha(ejecutoraId, v), 'Fecha del sistema: ' + v); } }} /></label>
-    <span className="cbsp" />
-    <Btn sm onClick={async () => { if (await confirmar('¿Cargar el caso resuelto en su espacio?', { icono: 'warn', ok: 'Cargar', detalle: 'Se reemplazan los registros de su usuario. Los demás usuarios no se ven afectados.' })) intentar(() => api.ejecutora.solucion(ejecutoraId), 'Caso resuelto cargado'); }}>Cargar caso resuelto</Btn>
-    <Btn sm v="g" onClick={async () => { if (await confirmar('¿Practicar desde cero en ' + d.corto + '?', { icono: 'edit', ok: 'Iniciar', detalle: 'Se borran los registros actuales de esta ejecutora.' })) intentar(() => api.ejecutora.practicar(ejecutoraId), 'Ejecutora lista para practicar'); }}>Practicar desde cero</Btn>
-  </div>;
-}
-
 export interface PanelProps { titulo: string; onNuevo?: () => void; tituloNuevo?: string; ph: string; avanzada?: boolean; total: number; etiqueta: string; children: ReactNode }
 export function PanelLista({ titulo, onNuevo, tituloNuevo, ph, avanzada, total, etiqueta, children }: PanelProps) {
   const { filtros: f, setFiltro, ejecutoraId } = useApp();

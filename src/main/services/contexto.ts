@@ -9,7 +9,7 @@ import { AulaRepo, AuditoriaRepo, MetaRepo, ResponsableRepo, UsuarioRepo } from 
 import { CASOS, CTX_ORDER } from '@shared/casos';
 import type { Ejecutora, Nivel, Opcion, Sesion } from '@shared/types';
 import { ErrorNegocio, exigir } from '@shared/domain/reglas';
-import { construirSolucion, ejecutoraVacia } from '@shared/domain/fabrica';
+import { ejecutoraVacia } from '@shared/domain/fabrica';
 import { hoy, hora, uid } from '@shared/util';
 
 /** Responsables acreditados de prueba con los que cada espacio nuevo arranca (PIN del DNIe: 123456). */
@@ -90,11 +90,11 @@ export class Contexto {
       return r;
     });
   }
-  /** Crea el espacio de trabajo del usuario (Caso Práctico 1 resuelto y responsables acreditados) si aún no existe. */
+  /** Crea el espacio de trabajo del usuario (ejecutora vacía, como el SIAF real, con responsables acreditados) si aún no existe. */
   asegurarEspacio(usuarioId: string): void {
     this.bd.transaccion(() => CTX_ORDER.forEach(caso => {
       const clave = claveDe(usuarioId, caso);
-      if (!this.ejecutoras.existe(clave)) this.ejecutoras.guardar(construirSolucion(caso), clave);
+      if (!this.ejecutoras.existe(clave)) this.ejecutoras.guardar(ejecutoraVacia(caso, 'practica'), clave);
       if (!this.responsables.existenPara(clave)) responsablesIniciales(caso).forEach(r => this.responsables.insertar(r, clave));
     }));
   }

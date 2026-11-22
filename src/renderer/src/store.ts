@@ -6,7 +6,8 @@ import { api } from './api';
 import { CTX_ORDER } from '@shared/casos';
 
 export type AppId = 'portal' | 'bienvenida' | 'ejecucion' | 'opl' | 'aeraf' | 'madaf' | 'casos' | 'docente';
-export type Pantalla = 'cert' | 'ca' | 'cm' | 'dev' | 'gir' | 't6' | 'det' | 'mod' | 'cont' | 'ver' | 'clas' | 'cat' | 'rep';
+export type Pantalla = 'cert' | 'ca' | 'cm' | 'dev' | 'gir' | 'mod' | 'modexp' | 'det' | 'rec' | 'ren' | 'reasig' | 'apcta' | 'ope' | 't6' | 'area' | 'ctas' | 'cci' | 'conv' | 'via' | 'dliq' | 'modvia'
+  | 'contratos' | 'atp' | 'repcca' | 'rep' | 'transf';
 export interface Aviso { id: number; texto: string; sub?: string; tipo: 'ok' | 'err' | 'info' }
 export interface Dialogo { id: number; nodo: (cerrar: () => void) => ReactNode; ancho?: 'normal' | 'ancho' | 'conf' }
 export interface Filtros { mes: string; q: string; asc: boolean; tipoCert: string; estado: string; rubro: string; adv: boolean }

@@ -78,5 +78,12 @@ export const MIGRACIONES: string[] = [
   DROP TABLE usuarios;
   ALTER TABLE usuarios_v2 RENAME TO usuarios;
   CREATE INDEX ix_usuarios_email ON usuarios(lower(email));
+  `,
+  /* v3: opciones complementarias del menú Registro (cuentas bancarias, CCI, beneficiarios OPE, áreas, convenios, viáticos...) */
+  `
+  CREATE TABLE registros_aux (
+    id TEXT PRIMARY KEY, ejecutora TEXT NOT NULL REFERENCES ejecutoras(id) ON DELETE CASCADE, tipo TEXT NOT NULL, num INTEGER NOT NULL,
+    mes INTEGER NOT NULL, fecha TEXT NOT NULL, estado TEXT NOT NULL, datos TEXT NOT NULL, t INTEGER NOT NULL);
+  CREATE INDEX ix_registros_aux ON registros_aux(ejecutora, tipo);
   `
 ];
