@@ -66,7 +66,7 @@ export class BackendLocal implements Backend {
     escribir(K.usuarios, [...lista, u]); escribir(K.sesion, u.id);
     return sinSecreto(u);
   }
-  googleDisponible(): boolean { return false; }
+  async googleDisponible(): Promise<boolean> { return false; }
   async google(): Promise<void> { throw new Error('El acceso con Google requiere conectar Supabase (vea DESPLIEGUE-WEB.md).'); }
   async logout(): Promise<void> { localStorage.removeItem(K.sesion); }
   async cambiarClave(actual: string, nueva: string): Promise<void> {

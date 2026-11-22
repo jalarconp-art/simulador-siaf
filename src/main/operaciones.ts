@@ -87,5 +87,5 @@ export function ejecutar(fn: (() => unknown) | undefined, metodo: string): Resul
 export function traducirError(e: unknown): Resultado {
   if (e instanceof ErrorNegocio) return { ok: false, error: e.message };
   if (e instanceof ZodError) return { ok: false, error: 'Datos incompletos o con formato inválido: ' + e.issues.map(i => i.path.join('.') + ' ' + i.message).join('; ') };
-  return { ok: false, error: (e as Error)?.message ? 'Error: ' + (e as Error).message : 'Error interno.' };
+  return { ok: false, error: (e as Error)?.message || 'Error interno.' };
 }

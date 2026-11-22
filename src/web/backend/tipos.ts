@@ -11,7 +11,7 @@ export interface Backend {
   login(email: string, clave: string): Promise<Usuario>;
   /** Devuelve el perfil o null si el proveedor exige confirmar el correo antes de ingresar. */
   registrar(d: DatosRegistro): Promise<Usuario | null>;
-  googleDisponible(): boolean;
+  googleDisponible(): Promise<boolean>;
   google(): Promise<void>;
   logout(): Promise<void>;
   cambiarClave(actual: string, nueva: string): Promise<void>;

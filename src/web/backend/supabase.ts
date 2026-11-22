@@ -11,6 +11,11 @@ const aUsuario = (f: FilaPerfil): Usuario => {
   return { id: f.id, usuario: f.usuario, email: f.email, dni: f.dni, apellidos: f.apellidos, nombres: f.nombres, rol, permisos: f.permisos && Object.keys(f.permisos).length ? f.permisos : permisosDeRol(rol), estado: f.estado === 'INACTIVO' ? 'INACTIVO' : 'ACTIVO', creado: fecha(f.creado), proveedor: f.proveedor === 'google' ? 'google' : 'local' };
 };
 const traducir = (m: string): string => {
+  if (/PGRST205|schema cache|relation .* does not exist/i.test(m)) return 'La base de datos de Supabase aún no está configurada: ejecute el archivo supabase/schema.sql en el SQL Editor de Supabase (ver DESPLIEGUE-WEB.md).';
+  if (/Failed to fetch|NetworkError/i.test(m)) return 'No hay conexión con el servidor. Revise su internet e inténtelo de nuevo.';
+  if (/Email signups are disabled|Signups not allowed/i.test(m)) return 'El registro de cuentas está desactivado en Supabase.';
+  if (/email rate limit|over_email_send_rate_limit/i.test(m)) return 'Supabase alcanzó el límite de correos de confirmación por hora. Pida al administrador desactivar «Confirm email» en Supabase.';
+  if (/provider is not enabled|Unsupported provider/i.test(m)) return 'El acceso con Google aún no está activado en Supabase (Authentication › Providers › Google).';
   if (/Invalid login credentials/i.test(m)) return 'Correo o contraseña incorrectos.';
   if (/Email not confirmed/i.test(m)) return 'Confirme su correo: le enviamos un enlace de verificación.';
   if (/already registered|already been registered/i.test(m)) return 'Ya existe una cuenta registrada con ese correo. Inicie sesión.';
@@ -22,13 +27,13 @@ const traducir = (m: string): string => {
 export class BackendSupabase implements Backend {
   readonly nombre = 'supabase' as const;
   private sb: SupabaseClient;
-  constructor(url: string, clave: string) { this.sb = createClient(url, clave, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }); }
+  constructor(private url: string, private clave: string) { this.sb = createClient(url, clave, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }); }
 
   private async perfil(id: string): Promise<Usuario> {
     /* el disparador crea el perfil al registrarse; se reintenta brevemente por si aún no está */
     for (let i = 0; i < 5; i++) {
       const { data, error } = await this.sb.from('perfiles').select('*').eq('id', id).maybeSingle();
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(traducir(error.message));
       if (data) return aUsuario(data as FilaPerfil);
       await new Promise(r => setTimeout(r, 400));
     }
@@ -50,7 +55,10 @@ export class BackendSupabase implements Backend {
     if (!data.session || !data.user) return null;
     return this.perfil(data.user.id);
   }
-  googleDisponible(): boolean { return true; }
+  /** El botón de Google solo se muestra si el proveedor está activado en Supabase (Authentication › Providers). */
+  async googleDisponible(): Promise<boolean> {
+    try { const r = await fetch(this.url + '/auth/v1/settings', { headers: { apikey: this.clave } }); return !!(await r.json())?.external?.google; } catch { return false; }
+  }
   async google(): Promise<void> {
     const { error } = await this.sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin, queryParams: { prompt: 'select_account' } } });
     if (error) throw new Error(traducir(error.message));

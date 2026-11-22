@@ -2,24 +2,35 @@
 import { expect, test, type Page } from '@playwright/test';
 
 let page: Page;
+async function irAlLogin() {
+  if (await page.locator('.sp').isVisible()) await page.locator('.sp-card', { hasText: 'Sistema Integrado de Administración Financiera' }).click();
+  await expect(page.locator('.sl-form')).toBeVisible();
+  if (await page.getByText('Ya tengo cuenta').isVisible()) await page.getByText('Ya tengo cuenta').click();
+}
 async function login(u: string, c: string) {
-  await page.locator('.lg-tabs a', { hasText: 'Iniciar sesión' }).click();
-  const i = page.locator('.lg-card input');
+  await irAlLogin();
+  const i = page.locator('.sl-form input');
   await i.nth(0).fill(u); await i.nth(1).fill(c);
-  await page.getByRole('button', { name: 'Ingresar' }).click();
+  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
   await expect(page.locator('.wcard h2')).toBeVisible();
 }
 async function salir() {
   await page.locator('.tb-user').click();
   await page.getByText('Cerrar sesión').click();
-  await expect(page.locator('.lg-card')).toBeVisible();
+  await expect(page.locator('.sp')).toBeVisible();
 }
-const confirmar = async () => { await page.locator('.modal.conf .btn-p').click(); };
+async function registrar(datos: string[]) {
+  await irAlLogin();
+  await page.getByText('Crear una cuenta').click();
+  const i = page.locator('.sl-form input');
+  for (let k = 0; k < datos.length; k++) await i.nth(k).fill(datos[k]);
+  await page.getByRole('button', { name: 'Crear cuenta e ingresar' }).click();
+}const confirmar = async () => { await page.locator('.modal.conf .btn-p').click(); };
 
 test.beforeAll(async ({ browser }) => {
   page = await browser.newPage();
   await page.goto('/');
-  await expect(page.locator('.lg-card')).toBeVisible();
+  await expect(page.locator('.sp')).toBeVisible();
 });
 
 test('ingreso con correo, caso cargado y verificación al 100 %', async () => {
@@ -84,11 +95,7 @@ test('otro trabajador no ve lo registrado por el primero', async () => {
 
 test('registro de cuenta nueva con correo', async () => {
   await salir();
-  await page.locator('.lg-tabs a', { hasText: 'Crear cuenta' }).click();
-  const i = page.locator('.lg-card input');
-  await i.nth(0).fill('Mamani Huanca'); await i.nth(1).fill('Elena'); await i.nth(2).fill('45678901');
-  await i.nth(3).fill('elena.mamani@correo.pe'); await i.nth(4).fill('Elena2026'); await i.nth(5).fill('Elena2026');
-  await page.getByRole('button', { name: 'Crear cuenta e ingresar' }).click();
+  await registrar(['Mamani Huanca', 'Elena', '45678901', 'elena.mamani@correo.pe', 'Elena2026', 'Elena2026']);
   await expect(page.locator('.wcard h2')).toContainText('ELENA');
 });
 

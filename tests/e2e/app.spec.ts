@@ -6,19 +6,30 @@ import path from 'path';
 
 let app: ElectronApplication; let page: Page; let db: string;
 
+async function irAlLogin() {
+  if (await page.locator('.sp').isVisible()) await page.locator('.sp-card', { hasText: 'Sistema Integrado de Administración Financiera' }).click();
+  await expect(page.locator('.sl-form')).toBeVisible();
+  if (await page.getByText('Ya tengo cuenta').isVisible()) await page.getByText('Ya tengo cuenta').click();
+}
 async function login(u: string, c: string) {
-  await page.locator('.lg-tabs a', { hasText: 'Iniciar sesión' }).click();
-  const inputs = page.locator('.lg-card input');
-  await inputs.nth(0).fill(u); await inputs.nth(1).fill(c);
-  await page.getByRole('button', { name: 'Ingresar' }).click();
+  await irAlLogin();
+  const i = page.locator('.sl-form input');
+  await i.nth(0).fill(u); await i.nth(1).fill(c);
+  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
   await expect(page.locator('.wcard h2')).toBeVisible();
 }
 async function salir() {
   await page.locator('.tb-user').click();
   await page.getByText('Cerrar sesión').click();
-  await expect(page.locator('.lg-card')).toBeVisible();
+  await expect(page.locator('.sp')).toBeVisible();
 }
-const confirmar = async () => { await page.locator('.modal.conf .btn-p').click(); };
+async function registrar(datos: string[]) {
+  await irAlLogin();
+  await page.getByText('Crear una cuenta').click();
+  const i = page.locator('.sl-form input');
+  for (let k = 0; k < datos.length; k++) await i.nth(k).fill(datos[k]);
+  await page.getByRole('button', { name: 'Crear cuenta e ingresar' }).click();
+}const confirmar = async () => { await page.locator('.modal.conf .btn-p').click(); };
 
 test.beforeAll(async () => {
   db = path.join(os.tmpdir(), 'siaf-e2e-' + Date.now() + '.sqlite');
@@ -26,15 +37,21 @@ test.beforeAll(async () => {
   delete env.ELECTRON_RUN_AS_NODE;
   app = await electron.launch({ args: [path.join(__dirname, '..', '..')], env });
   page = await app.firstWindow();
-  await page.waitForSelector('.lg-card');
+  await page.waitForSelector('.sp');
 });
 test.afterAll(async () => { await app.close(); try { fs.unlinkSync(db); } catch { /* ya eliminado */ } });
 
-test('portal y credenciales inválidas', async () => {
-  const inputs = page.locator('.lg-card input');
+test('portada de la plataforma, clic en SIAF y credenciales inválidas', async () => {
+  await expect(page.locator('.sp-tit')).toHaveText('Componentes del sistema integrado');
+  await page.locator('.sp-buscar input').fill('bancario');
+  await expect(page.locator('.sp-card')).toHaveCount(1);
+  await page.locator('.sp-buscar input').fill('');
+  await irAlLogin();
+  await expect(page.locator('.sl-tit')).toHaveText('Inicio de Sesión');
+  const inputs = page.locator('.sl-form input');
   await inputs.nth(0).fill('RU20261'); await inputs.nth(1).fill('incorrecta');
-  await page.getByRole('button', { name: 'Ingresar' }).click();
-  await expect(page.locator('.lg-card .err')).toContainText('incorrectos');
+  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await expect(page.locator('.sl-form .err')).toContainText('incorrectos');
 });
 
 test('el trabajador entra con su usuario y el Caso Práctico 1 viene cargado y verifica al 100 %', async () => {
@@ -97,11 +114,7 @@ test('otro trabajador no ve lo registrado por el primero', async () => {
 
 test('registro de una cuenta nueva con correo electrónico', async () => {
   await salir();
-  await page.locator('.lg-tabs a', { hasText: 'Crear cuenta' }).click();
-  const i = page.locator('.lg-card input');
-  await i.nth(0).fill('Mamani Huanca'); await i.nth(1).fill('Elena'); await i.nth(2).fill('45678901');
-  await i.nth(3).fill('elena.mamani@correo.pe'); await i.nth(4).fill('Elena2026'); await i.nth(5).fill('Elena2026');
-  await page.getByRole('button', { name: 'Crear cuenta e ingresar' }).click();
+  await registrar(['Mamani Huanca', 'Elena', '45678901', 'elena.mamani@correo.pe', 'Elena2026', 'Elena2026']);
   await expect(page.locator('.wcard h2')).toContainText('ELENA');
   await salir(); await login('elena.mamani@correo.pe', 'Elena2026');
   await expect(page.locator('.wcard h2')).toContainText('MAMANI HUANCA');

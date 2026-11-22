@@ -125,7 +125,7 @@ export class PuenteWeb implements SiafPuente {
         exigir(n.length >= 8 && /\d/.test(n) && /[a-zA-Z]/.test(n), 'La nueva contraseña debe tener al menos 8 caracteres y combinar letras y números.');
         await this.backend.cambiarClave(str(a[0]), n); return { manejada: true };
       }
-      case 'google.disponible': return { manejada: true, data: this.backend.googleDisponible() };
+      case 'google.disponible': return { manejada: true, data: await this.backend.googleDisponible() };
       case 'google.config': case 'google.guardar': throw new ErrorNegocio('En la versión web el acceso con Google se configura en Supabase › Authentication › Providers › Google.');
       case 'usuarios.listar': this.requerirAdmin(); return { manejada: true, data: await this.backend.listarPerfiles() };
       case 'usuarios.perfil': {
