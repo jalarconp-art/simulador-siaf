@@ -12,3 +12,4 @@ playwright-report/
 .vercel
 *.log
 dist-*/
+tools/smoke-out/
