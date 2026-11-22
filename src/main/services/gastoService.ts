@@ -183,6 +183,15 @@ export class GastoService {
     return this.ctx.operar(c.ejecutora, 'pagado.registrar', ej => {
       const e = buscar(ej.exps, c.expId, 'Expediente'); const g = e.secs.find(s => s.sec === c.sec);
       exigir(g && g.fase === 'G' && g.estado === 'APROBADO', 'El giro debe estar aprobado.'); exigir(!g!.pagado, 'El giro ya tiene pagado registrado.');
+      /* Certificación de fase pagado (tipos de pago otros): cheque, carta orden, efectivo, retenciones... */
+      if (c.docPago !== undefined || c.fechaPago !== undefined) {
+        const fecha = (c.fechaPago || '').trim(), docu = (c.docPago || '').trim().toUpperCase();
+        validarFecha(fecha, 'la fecha de pago');
+        exigir(fechaNoAnterior(fecha, g!.doc.fecha || g!.fecha), 'La fecha de pago no puede ser anterior a la del giro (' + (g!.doc.fecha || g!.fecha) + ').');
+        exigir(docu, 'Ingrese el documento del pago (número de cheque, carta orden o constancia).');
+        g!.pagado = true;
+        return nuevaSecExp(ej, e, { fase: 'P', doc: { cod: 'PAG', serie: '', num: docu, fecha }, items: g!.items.map(i => ({ ...i })), ref: c.sec, notas: 'PAGADO (TIPO DE PAGO OTROS - ' + (g!.giro?.medio || '') + '): GIRO SEC. ' + pad(c.sec, 4) + ((c.observacion || '').trim() ? '. ' + c.observacion!.trim().toUpperCase() : ''), fecha }).sec;
+      }
       g!.pagado = true;
       return nuevaSecExp(ej, e, { fase: 'P', doc: { cod: 'BN', serie: '', num: 'CONFIRMACION DEL ABONO', fecha: ej.fechaSis }, items: g!.items.map(i => ({ ...i })), ref: c.sec, notas: 'PAGADO: CONFIRMACION DEL ABONO DEL GIRO SEC. ' + pad(c.sec, 4), fecha: ej.fechaSis }).sec;
     });

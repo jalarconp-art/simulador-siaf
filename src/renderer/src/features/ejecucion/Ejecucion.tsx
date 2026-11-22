@@ -9,6 +9,7 @@ import { Ingresos } from './Ingresos';
 import { Modificaciones } from './Modificaciones';
 import { Reportes } from './Reportes';
 import { Auxiliar } from './Auxiliares';
+import { PagadoOtros } from './PagadoOtros';
 import { AsignacionTesoro, Contratos, ReporteCertificacion, ReporteTransferencia } from './ConsultasReportes';
 import { AUX_POR_K } from '@shared/auxiliares';
 import { OPCIONES, puede } from '@shared/permisos';
@@ -24,6 +25,7 @@ export function Ejecucion() {
     case 'cert': vista = <Certificados />; break;
     case 'ca': vista = <CompromisoAnual />; break;
     case 'cm': case 'dev': case 'gir': case 't6': vista = <Expedientes pantalla={pantalla} key={pantalla} />; break;
+    case 'pagotros': vista = <PagadoOtros />; break;
     case 'ren': vista = <Expedientes pantalla="dev" key="ren" />; break;
     case 'det': case 'rec': vista = <Ingresos key={pantalla} />; break;
     case 'mod': vista = <Modificaciones />; break;

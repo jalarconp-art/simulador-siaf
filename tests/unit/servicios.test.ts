@@ -309,3 +309,21 @@ describe('Opciones complementarias del menú Registro', () => {
     expect(falla('aux.grabar', { ejecutora: 'cp1', tipo: 'area', datos: { codigo: '0002', descripcion: 'Tesoreria' } })).toContain('Compromiso Anual');
   });
 });
+describe('Certificación de fase pagado (tipos de pago otros)', () => {
+  it('certifica el pagado de un giro por retención con fecha y documento, y valida los datos', () => {
+    entrar('RU20261');
+    ok('ejecutora.solucion', 'cp1');
+    const e = ej().exps.find(x => x.secs.some(s => s.fase === 'G'))!;
+    const g = e.secs.find(s => s.fase === 'G')!;
+    expect(g.giro!.medio).toBe('RETENCION - GARANTIA DE FIEL CUMPLIMIENTO');
+    expect(falla('gir.pagado', { ejecutora: 'cp1', expId: e.id, sec: g.sec, fechaPago: '30/10/2022', docPago: '' })).toContain('documento');
+    expect(falla('gir.pagado', { ejecutora: 'cp1', expId: e.id, sec: g.sec, fechaPago: '01/01/2022', docPago: 'CONSTANCIA 123' })).toContain('anterior');
+    const sec = ok('gir.pagado', { ejecutora: 'cp1', expId: e.id, sec: g.sec, fechaPago: '30/10/2022', docPago: 'Constancia de retencion 0045', observacion: 'Garantia de fiel cumplimiento' });
+    const p = ej().exps.find(x => x.id === e.id)!.secs.find(s => s.sec === sec)!;
+    expect(p.fase).toBe('P');
+    expect(p.doc.num).toBe('CONSTANCIA DE RETENCION 0045');
+    expect(p.doc.fecha).toBe('30/10/2022');
+    expect(ej().exps.find(x => x.id === e.id)!.secs.find(s => s.sec === g.sec)!.pagado).toBe(true);
+    expect(falla('gir.pagado', { ejecutora: 'cp1', expId: e.id, sec: g.sec, fechaPago: '30/10/2022', docPago: 'X' })).toContain('ya tiene pagado');
+  });
+});

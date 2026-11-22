@@ -15,7 +15,7 @@ export const S = {
   devGrabar: z.object({ ejecutora: zEj, expId: z.string(), sec: z.number().optional(), rend: z.boolean(), doc: zDoc, notas: z.string(), ent: z.string().default(''), items: z.array(zItem), comp: z.array(z.object({ tipo: z.string(), num: z.string(), fecha: z.string().default(''), desc: z.string().default(''), clas: z.string(), monto: z.coerce.number() })).default([]) }),
   girGrabar: z.object({ ejecutora: zEj, expId: z.string(), sec: z.number().optional(), tipoGiro: z.string(), medio: z.string(), docGiro: z.string(), fecha: z.string(), benefNum: z.string(), items: z.array(zItem), ret: z.array(z.object({ concepto: z.string(), monto: z.coerce.number() })).default([]) }),
   t6Grabar: z.object({ ejecutora: zEj, expId: z.string(), sec: z.number().optional(), num: z.string(), fecha: z.string(), notas: z.string(), items: z.array(zItem) }),
-  pagado: z.object({ ejecutora: zEj, expId: z.string(), sec: z.number() }),
+  pagado: z.object({ ejecutora: zEj, expId: z.string(), sec: z.number(), fechaPago: z.string().optional(), docPago: z.string().optional(), observacion: z.string().optional() }),
   detGrabar: z.object({ ejecutora: zEj, rubro: z.string(), doc: zDoc, notas: z.string(), tipoPago: z.string().default(''), items: z.array(zItem) }),
   recGrabar: z.object({ ejecutora: zEj, ingId: z.string(), doc: zDoc, notas: z.string(), items: z.array(zItem) }),
   modGrabar: z.object({ ejecutora: zEj, id: z.string().optional(), tipo: z.enum(['CERT', 'CA']), refId: z.string(), campo: z.string(), valor: z.string() }),

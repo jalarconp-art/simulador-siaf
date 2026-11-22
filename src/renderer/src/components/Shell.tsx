@@ -36,7 +36,8 @@ type Grupo = 'Registro' | 'Consultas' | 'Reportes';
 export const PANTALLAS: Record<Pantalla, [string, Grupo, string]> = {
   cert: ['Certificación', 'Registro', 'Certificación'], ca: ['Compromiso Anual', 'Registro', 'Compromiso Anual'],
   cm: ['Registro SIAF - Compromiso Mensual', 'Registro', 'Registro SIAF - Compromiso Mensual'], dev: ['Registro SIAF - Devengado', 'Registro', 'Registro SIAF - Devengado'],
-  gir: ['Registro SIAF - Girado', 'Registro', 'Registro SIAF - Girado'], mod: ['Modificación de Certificación y Compromiso Anual', 'Registro', 'Modificación de Certificación y Compromiso Anual'],
+  gir: ['Registro SIAF - Girado', 'Registro', 'Registro SIAF - Girado'],
+  pagotros: ['Certificación de Fase Pagado (Tipos de Pago Otros)', 'Registro', 'Certificación de fase pagado (Tipos de pago otros)'], mod: ['Modificación de Certificación y Compromiso Anual', 'Registro', 'Modificación de Certificación y Compromiso Anual'],
   modexp: ['Modificación Expediente', 'Registro', 'Modificación Expediente'], det: ['Registro SIAF - Determinado', 'Registro', 'Registro SIAF - Determinado'],
   rec: ['Registro SIAF - Recaudado', 'Registro', 'Registro SIAF - Recaudado'], ren: ['Rendición', 'Registro', 'Rendición'], reasig: ['Reasignacion', 'Registro', 'Reasignación'],
   apcta: ['Solicitud de Apertura de Cuenta Bancaria', 'Registro', 'Solicitud de Apertura de Cuenta Bancaria'], ope: ['Beneficiario OPE', 'Registro', 'Beneficiario OPE'],
@@ -49,7 +50,7 @@ export const PANTALLAS: Record<Pantalla, [string, Grupo, string]> = {
 };
 /** Opción del administrador que habilita cada pantalla (las demás son de consulta libre). */
 const OPCION_PANTALLA: Partial<Record<Pantalla, Opcion>> = {
-  cert: 'cert', ca: 'ca', cm: 'cm', dev: 'dev', gir: 'gir', t6: 'gir', mod: 'mod', modexp: 'mod', det: 'det', rec: 'det', ren: 'dev', reasig: 'cm',
+  cert: 'cert', ca: 'ca', cm: 'cm', dev: 'dev', gir: 'gir', pagotros: 'gir', t6: 'gir', mod: 'mod', modexp: 'mod', det: 'det', rec: 'det', ren: 'dev', reasig: 'cm',
   apcta: 'gir', ope: 'gir', ctas: 'gir', cci: 'gir', area: 'ca', conv: 'ca', via: 'cm', dliq: 'dev', modvia: 'cm', repcca: 'cont', rep: 'cont', transf: 'cont'
 };
 export const pantallaVisible = (u: Parameters<typeof puede>[0], k: Pantalla) => !OPCION_PANTALLA[k] || puede(u, OPCION_PANTALLA[k]!, 'C');

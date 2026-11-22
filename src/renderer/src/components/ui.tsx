@@ -4,7 +4,7 @@ import { Icon } from './Icon';
 import { clasNom, fmt, sumI } from '@shared/util';
 import type { Item } from '@shared/types';
 
-const CL: Record<string, string> = { 'REGISTRADO': 'b-reg', 'EN VERIFICACION': 'b-ver', 'ENVIADO A OPP': 'b-opp', 'PENDIENTE DE FIRMA': 'b-pf', 'APROBADO': 'b-ok', 'RECHAZADO': 'b-rej', 'DESCARTADO': 'b-des', 'ANULADO': 'b-des', 'AUTORIZADO': 'b-ok', 'POR AUTORIZAR': 'b-pf', 'BAJA': 'b-des', 'ACTIVO': 'b-ok', 'INACTIVO': 'b-des', 'ANTECEDENTE': 'b-des', 'PENDIENTE': 'b-des' };
+const CL: Record<string, string> = { 'REGISTRADO': 'b-reg', 'EN VERIFICACION': 'b-ver', 'ENVIADO A OPP': 'b-opp', 'PENDIENTE DE FIRMA': 'b-pf', 'APROBADO': 'b-ok', 'RECHAZADO': 'b-rej', 'DESCARTADO': 'b-des', 'ANULADO': 'b-des', 'AUTORIZADO': 'b-ok', 'POR AUTORIZAR': 'b-pf', 'BAJA': 'b-des', 'ACTIVO': 'b-ok', 'INACTIVO': 'b-des', 'ANTECEDENTE': 'b-des', 'PENDIENTE': 'b-pf', 'PAGADO': 'b-ok' };
 export const Badge = ({ e }: { e: string }) => <span className={'badge ' + (CL[e] || 'b-reg')}>{e}</span>;
 
 type Variante = 'p' | 'o' | 'g' | 'ok' | 'danger' | 'w';

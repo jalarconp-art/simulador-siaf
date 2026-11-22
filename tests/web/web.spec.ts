@@ -37,7 +37,7 @@ test('ingreso con correo y menú del SIAF-WEB', async () => {
   await login('rquispe@regionpuno.gob.pe', 'Quispe2026');
   await expect(page.locator('.wcard h2')).toContainText('ROSA ELENA');
   await page.locator('.tile', { hasText: 'Ejecucion Presupuestal' }).click();
-  await expect(page.locator('.menu .mitems a')).toHaveCount(21);
+  await expect(page.locator('.menu .mitems a')).toHaveCount(22);
 });
 
 test('práctica: certificado, aprobación OPP y firma MADAF; los datos persisten al recargar', async () => {
