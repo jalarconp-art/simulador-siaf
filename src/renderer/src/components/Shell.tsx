@@ -68,21 +68,22 @@ export function Migas() {
   const s = PANTALLAS[pantalla];
   return <div className="crumbs"><span>Módulos <i>&gt;</i> Ejecución presupuestal <i>&gt;</i> {s[1]} <i>&gt;</i> <b>{s[2]}</b></span></div>;
 }
-export interface PanelProps { titulo: string; onNuevo?: () => void; tituloNuevo?: string; ph: string; avanzada?: boolean; total: number; etiqueta: string; children: ReactNode }
-export function PanelLista({ titulo, onNuevo, tituloNuevo, ph, avanzada, total, etiqueta, children }: PanelProps) {
+export interface PanelProps { titulo: string; onNuevo?: () => void; tituloNuevo?: string; ph: string; avanzada?: boolean; total: number; etiqueta: string; children: ReactNode; limpiar?: () => void }
+export function PanelLista({ titulo, onNuevo, tituloNuevo, ph, avanzada, total, etiqueta, children, limpiar }: PanelProps) {
   const { filtros: f, setFiltro, ejecutoraId } = useApp();
   return <div className="listp">
     <div className="lp-head"><b>{titulo}</b>{onNuevo && <button className="plus" title={tituloNuevo} onClick={onNuevo}><Icon n="plus" /></button>}</div>
     <div className="lp-per"><span>Periodo</span><select value={f.mes} onChange={e => setFiltro('mes', e.target.value)}><option value="TODOS">TODOS</option>{MESES.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}</select><select disabled><option>{CASOS[ejecutoraId].anio}</option></select></div>
     <div className="lp-search"><span className="sico"><Icon n="search" /></span><input placeholder={ph} value={f.q} onChange={e => setFiltro('q', e.target.value)} />{avanzada && <button onClick={() => setFiltro('adv', !f.adv)} title="Búsqueda avanzada"><Icon n="chevron" /></button>}</div>
+    {limpiar && <button className="lp-limpiar" onClick={limpiar}><Icon n="reset" /> Limpiar Filtros</button>}
     {avanzada && f.adv && <div className="advs"><b>BÚSQUEDA AVANZADA</b><div className="fgrid">
       <Lista label="Tipo certificación" c={6} value={f.tipoCert} onChange={v => setFiltro('tipoCert', v)} opciones={['TODOS', ...CAT.tiposCert]} />
       <Lista label="Estado" c={6} value={f.estado} onChange={v => setFiltro('estado', v)} opciones={['TODOS', 'REGISTRADO', 'EN VERIFICACION', 'ENVIADO A OPP', 'PENDIENTE DE FIRMA', 'APROBADO', 'RECHAZADO', 'DESCARTADO']} />
       <Lista label="Rubro" c={12} value={f.rubro} onChange={v => setFiltro('rubro', v)} opciones={[{ v: 'TODOS', t: 'TODOS' }, ...CAT.rubros.map(r => [r[0], r[1]] as [string, string])]} />
     </div><div className="mact"><Btn sm v="g" icon="reset" onClick={() => { setFiltro('tipoCert', 'TODOS'); setFiltro('estado', 'TODOS'); setFiltro('rubro', 'TODOS'); }}>Limpiar</Btn><Btn sm v="p" icon="search" onClick={() => setFiltro('adv', false)}>Buscar</Btn></div></div>}
     <div className="lp-count"><span>{total} {etiqueta}</span><button title={f.asc ? 'Orden ascendente' : 'Orden descendente'} onClick={() => setFiltro('asc', !f.asc)}>{f.asc ? '↑' : '↓'}</button></div>
-    <div className="lp-list">{total ? children : <div className="empty-sm">No hay registros en el periodo seleccionado.</div>}</div>
-    <div className="lp-foot">Filas <select disabled><option>25</option></select><span>{total ? 1 : 0} - {Math.min(total, 25)} de {total}</span></div>
+    <div className="lp-list">{total ? children : <div className="empty-sm"><span className="eic-sm"><Icon n="folder" /></span>No se encontraron {etiqueta.toLowerCase()}.</div>}</div>
+    <div className="lp-foot">Filas <select disabled><option>25</option></select><span>Del {total ? 1 : 0} al {Math.min(total, 25)} de {total}</span></div>
   </div>;
 }
 /** utilidades de filtrado de listas */

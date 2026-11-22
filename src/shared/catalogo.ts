@@ -106,8 +106,16 @@ export const CAT = {
    "PLANILLA DE MOVILIDAD"
   ],
   [
+   "037",
+   "PLANILLA UNICA DE HABERES"
+  ],
+  [
    "043",
    "PLANILLA DE VIATICOS"
+  ],
+  [
+   "048",
+   "RENDICION DE CUENTA"
   ],
   [
    "059",
@@ -126,6 +134,10 @@ export const CAT = {
    "LIQUIDACION DE CONTRATO"
   ],
   [
+   "132",
+   "SEGUROS Y AUTOSEGUROS MEDICOS"
+  ],
+  [
    "230",
    "PLANILLA ANUALIZADA DE GASTOS EN PERSONAL"
   ],
@@ -136,6 +148,10 @@ export const CAT = {
   [
    "232",
    "RESUMEN ANUALIZADO DE RETRIBUCIONES - CAS"
+  ],
+  [
+   "233",
+   "RESUMEN SERVICIOS PUBLICOS ANUALIZADO"
   ],
   [
    "234",
@@ -236,10 +252,6 @@ export const CAT = {
  ],
  "tiposOp": [
   [
-   "N",
-   "GASTO - ADQUISICION DE BIENES Y SERVICIOS"
-  ],
-  [
    "A",
    "ENCARGO INTERNO"
   ],
@@ -258,6 +270,22 @@ export const CAT = {
   [
    "EO",
    "ENCARGO OTORGADO"
+  ],
+  [
+   "N",
+   "GASTO - ADQUISICION DE BIENES Y SERVICIOS"
+  ],
+  [
+   "OG",
+   "GASTO - OTROS GASTOS DEFINITIVOS (SIN PROVEEDOR)"
+  ],
+  [
+   "ON",
+   "GASTO - PLANILLAS"
+  ],
+  [
+   "RC",
+   "GASTO - FONDO CAJA CHICA (RENDICION Y REEMBOLSO)"
   ],
   [
    "OTRO",

@@ -7,6 +7,7 @@ import { Badge, Btn, BtnIc, Campo, Card, Encabezado, Grid, Lista, Menu3, RO, Sum
 import { confirmar } from '../../components/Dialogos';
 import { seleccionarMeta } from '../../components/Selectores';
 import { Icon } from '../../components/Icon';
+import { Letra } from './Expedientes';
 import type { Certificado, Ejecutora, Item } from '@shared/types';
 import { CASOS } from '@shared/casos';
 import { CAT, MESES } from '@shared/catalogo';
@@ -27,49 +28,57 @@ export function Certificados() {
   if (modo?.t === 'nuevo' || modo?.t === 'editar') detalle = <FormCertificado ej={e} cert={modo.t === 'editar' ? e.certs.find(c => c.id === modo.id) : undefined} cerrar={id => { setModo(null); if (id) seleccionar('cert', id); }} />;
   else if (modo) detalle = <FormModCert ej={e} cert={e.certs.find(c => c.id === modo.id)!} tipo={modo.t} cerrar={() => setModo(null)} />;
   else detalle = cert ? <DetalleCert ej={e} c={cert} setModo={setModo} /> : <Vacio titulo="Detalle del certificado" texto="Para poder visualizar el detalle, usted debe seleccionar un certificado de la lista izquierda." />;
+  const ETQC: Record<string, string> = { INICIAL: 'Certificación', AMPLIACION: 'Ampliación', REBAJA: 'Rebaja', ANULACION: 'Anulación' };
   return <>
     <PanelLista titulo="Certificación" onNuevo={() => { seleccionar('cert', null); setModo({ t: 'nuevo' }); }} tituloNuevo="Crear certificado" ph="Buscar número certificado" avanzada total={lista.length} etiqueta="certificados">
-      {lista.map(c => { const on = sel.cert === c.id; return <div key={c.id}>
-        <div className={'li' + (on ? ' on' : '')} onClick={() => { setModo(null); seleccionar('cert', on ? null : c.id); }}><span className="ic"><Icon n="doc" /></span><div className="lib"><b>{pad(c.num, 5)}</b><small>{MESES[c.mes - 1]} · S/ {fmt(mapTot(certMap(c, true)))}</small></div><Badge e={certEstado(c)} /></div>
-        {on && <div className="lix">{c.secs.map(s => <div key={s.sec}><span className="mono">{pad(s.sec, 4)}</span> {s.tipo} · {fmt(sumI(s.items))} <i>{s.estado}</i></div>)}</div>}</div>; })}
+      {lista.map(c => { const on = sel.cert === c.id; return <div key={c.id} className={'arbol' + (on ? ' abierto' : '')}>
+        <div className="li" onClick={() => { setModo(null); seleccionar('csec', null); seleccionar('cert', on ? null : c.id); }}><span className="ic"><Icon n="doc" /></span><div className="lib"><b>{pad(c.num, 5)}</b></div><span className={'chev' + (on ? ' up' : '')}><Icon n="chevron" /></span></div>
+        {on && c.secs.filter(s => s.estado !== 'DESCARTADO').map(s => <div key={s.sec} className={'rama' + (s.sec > 1 ? ' n1' : '') + ((sel.csec || '1') === String(s.sec) ? ' on' : '')} onClick={() => { setModo(null); seleccionar('csec', String(s.sec)); }}><span className="r-t">{ETQC[s.tipo]}</span><span className="r-s">{pad(s.sec, 4)}</span><Letra e={s.estado} /></div>)}
+      </div>; })}
     </PanelLista>
     <div className="detail">{detalle}</div></>;
 }
 
 function DetalleCert({ ej, c, setModo }: { ej: Ejecutora; c: Certificado; setModo: (m: Modo) => void }) {
-  const { setReporte, irPantalla, seleccionar } = useApp();
+  const { setReporte, irPantalla, seleccionar, sel } = useApp();
   const [tab, setTab] = useState('det');
-  const s0 = c.secs[0], est = s0.estado, reg = est === 'REGISTRADO', apr = est === 'APROBADO';
+  const s = c.secs.find(x => String(x.sec) === sel.csec) || c.secs[0];
+  const s0 = c.secs[0], est = s0.estado, apr = est === 'APROBADO', regS = s.estado === 'REGISTRADO';
   const tot = mapTot(certMap(c)), comp = mapTot(certComprometido(ej, c));
-  const amp = sumI(c.secs.filter(s => s.tipo === 'AMPLIACION' && s.estado === 'APROBADO').flatMap(s => s.items));
-  const reb = sumI(c.secs.filter(s => (s.tipo === 'REBAJA' || s.tipo === 'ANULACION') && s.estado === 'APROBADO').flatMap(s => s.items));
-  const m = certMap(c, true), sal = certSaldo(ej, c), pim = pimRows(ej, c.rubro);
+  const modsMonto = sumI(c.secs.filter(x => x.sec > 1 && x.estado === 'APROBADO').flatMap(x => x.tipo === 'AMPLIACION' ? x.items : x.items.map(i => ({ ...i, monto: -Math.abs(i.monto) }))));
+  const m = certMap(c, true), pim = pimRows(ej, c.rubro);
   const enviar = async (sec: number, tipo: string) => { if (await confirmar('¿Desea continuar con enviar el documento seleccionado?', { icono: 'send', ok: 'Enviar' })) intentar(() => api.flujo.enviar({ k: 'cs', x: ej.id, id: c.id, s: sec }), tipo === 'INICIAL' ? 'El certificado fue enviado' : tipo === 'AMPLIACION' ? 'Ampliación de certificación enviada' : tipo === 'ANULACION' ? 'Anulación de certificación enviada' : 'El certificado fue enviado.'); };
   const descartar = async (sec: number) => { if (await confirmar(sec === 1 ? '¿Descartar el certificado?' : '¿Descartar la modificación?', { icono: 'trash', ok: 'Descartar', detalle: 'El registro descartado ya no consume marco presupuestal.' })) intentar(() => api.flujo.descartar({ k: 'cs', x: ej.id, id: c.id, s: sec }), sec === 1 ? 'El certificado fue descartado' : 'La modificación fue descartada.'); };
-  const mods = c.secs.filter(s => s.sec > 1);
-  return <Card>
-    <Encabezado titulo={'CERTIFICADO Nº ' + pad(c.num, 5)} sub={<>Secuencia 0001 · {c.tipoCert} · <Badge e={est} /></>} acciones={<>{reg && <Btn icon="send" onClick={() => enviar(1, 'INICIAL')}>Enviar</Btn>}
-      <Menu3 opciones={[['Modificar', () => setModo({ t: 'editar', id: c.id }), !reg], ['Descartar', () => descartar(1), !reg], ['Anular', () => setModo({ t: 'ANULACION', id: c.id }), !apr], ['Ampliar', () => setModo({ t: 'AMPLIACION', id: c.id }), !apr], ['Rebajar', () => setModo({ t: 'REBAJA', id: c.id }), !apr]]} /></>} />
-    <Sumas items={[['Monto certificado', tot], ['Ampliaciones', amp], ['Rebajas / anulación', reb], ['Comprometido (CA)', comp], ['Saldo', tot - comp, true]]} />
-    <Tabs tabs={[['det', 'Detalle'], ['mods', `Modificaciones (${mods.length})`]]} val={tab} set={setTab} />
+  const mods = c.secs.filter(x => x.sec > 1);
+  const kv = (k: string, v: string, full?: boolean) => <div className={'kv-f' + (full ? ' full' : '')}><span>{k}:</span><b>{v || '-'}</b></div>;
+  const etq = s.tipo === 'INICIAL' ? 'Certificación' : s.tipo.charAt(0) + s.tipo.slice(1).toLowerCase();
+  return <div className="det-siaf">
+    <div className="ds-cab"><h2>CERTIFICADO Nº {pad(c.num, 5)}</h2><button className="btn-ins" disabled={!apr} onClick={() => { seleccionar('ca', c.id); irPantalla('ca'); }}>Insertar Compromiso</button></div>
+    <div className="ds-barra">
+      <select className="ds-sec" value={s.sec} onChange={ev => seleccionar('csec', ev.target.value)}>{c.secs.filter(x => x.estado !== 'DESCARTADO').map(x => <option key={x.sec} value={x.sec}>{x.tipo === 'INICIAL' ? 'Certificación' : x.tipo.charAt(0) + x.tipo.slice(1).toLowerCase()} {pad(x.sec, 4)}</option>)}</select>
+      <div className="ds-tabs"><a className={tab === 'det' ? 'on' : ''} onClick={() => setTab('det')}><Icon n="doc" /> Detalles</a><a className={tab === 'mods' ? 'on' : ''} onClick={() => setTab('mods')}><Icon n="doc" /> Modificaciones</a></div>
+      <Menu3 opciones={[['Modificar', () => setModo({ t: 'editar', id: c.id }), !(regS && s.sec === 1)], ['Descartar', () => descartar(s.sec), !regS], ['Anular', () => setModo({ t: 'ANULACION', id: c.id }), !apr], ['Ampliar', () => setModo({ t: 'AMPLIACION', id: c.id }), !apr], ['Rebajar', () => setModo({ t: 'REBAJA', id: c.id }), !apr], ['Ver Nota de Certificación', () => setReporte('cert', c.id)]]} />
+      <button className="btn-env" disabled={!regS} onClick={() => enviar(s.sec, s.tipo)}><Icon n="send" /> Enviar</button>
+    </div>
     {tab === 'det' ? <>
-      <Grid><RO label="Documento" v={c.doc.cod + ' - ' + docNom(c.doc.cod)} /><RO label="Número" v={c.doc.num} /><RO label="Fecha" v={c.doc.fecha} />
-        <RO label="Rubro" c={6} v={c.rubro + ' - ' + rubroNom(c.rubro)} /><RO label="Fuente de financiamiento" c={6} v={c.ff + ' - ' + ffNom(c.ff)} />
-        <RO label="Tipo certificación" v={c.tipoCert} /><RO label="Dispositivo legal" v={c.disp || '—'} /><RO label="Moneda" v="S/. - (NUEVO SOL)" />
-        <RO label="Justificación" c={12} v={c.justif} /><RO label="Estado registro" c={3} v={est} /><RO label="Fecha de registro" c={3} v={c.fecha} /><RO label="Fecha aprobación" c={3} v={s0.fechaAprob || '—'} /><RO label="Autorizado por" c={3} v={s0.aut || '—'} /></Grid>
-      <div className="two">
-        <Card inner><div className="ch"><b>CLASIFICADOR</b></div><table className="tbl"><thead><tr><th>Clasificador</th><th>Descripción</th><th className="r">Saldo PCA</th><th className="r">Monto</th></tr></thead><tbody>
-          {[...new Set(Object.keys(m).map(k => k.split('|')[0]))].map(cl => <tr key={cl}><td className="mono">{cl}</td><td>{clasNom(cl)}</td><td className="r">{fmt(pim.filter(p => p.clas === cl).reduce((a, p) => a + p.saldo, 0))}</td><td className="r">{fmt(Object.keys(m).filter(k => k.startsWith(cl + '|')).reduce((a, k) => a + m[k], 0))}</td></tr>)}</tbody></table></Card>
-        <Card inner><div className="ch"><b>META</b></div><table className="tbl"><thead><tr><th>S. Func</th><th>Clasif.</th><th className="r">Saldo PIM</th><th className="r">Monto</th><th className="r">Saldo por comprometer</th></tr></thead><tbody>
-          {Object.keys(m).map(k => { const [cl, me] = k.split('|'); const p = pim.find(x => x.clas === cl && x.meta === me); return <tr key={k}><td className="mono">{me}</td><td className="mono">{cl}</td><td className="r">{fmt(p ? p.saldo : 0)}</td><td className="r">{fmt(m[k])}</td><td className="r">{fmt(sal[k] || 0)}</td></tr>; })}</tbody></table></Card>
+      <div className="ds-card ds-kv">
+        <div>{kv('Secuencia', pad(s.sec, 4) + (s.sec > 1 ? ' · ' + etq.toUpperCase() : ''))}{kv('Documento', s.doc.cod + ' - ' + docNom(s.doc.cod))}{kv('Número', s.doc.num)}{kv('Fecha', s.doc.fecha)}{kv('Rubro', c.rubro + ' - ' + rubroNom(c.rubro))}</div>
+        <div>{kv('Estado', s.estado)}{kv('Moneda', 'NUEVO SOL')}{kv('Tipo certificación', c.tipoCert)}{kv('Referencia', 'OTROS')}{kv('Dispositivo legal', c.disp || 'OTROS')}</div>
+        {kv('Justificación', c.justif, true)}
       </div>
-      <div className="fbtn"><Btn icon="print" onClick={() => setReporte('cert', c.id)}>Ver Nota de Certificación</Btn>{apr && <Btn onClick={() => { seleccionar('ca', c.id); irPantalla('ca'); }}>Ir a Compromiso Anual ›</Btn>}</div>
-    </> : mods.length ? <table className="tbl"><thead><tr><th>Sec.</th><th>Tipo</th><th>Documento</th><th>Fecha</th><th className="r">Monto</th><th>Estado</th><th /></tr></thead><tbody>
-      {mods.map(s => <tr key={s.sec}><td className="mono">{pad(s.sec, 4)}</td><td>{s.tipo}</td><td>{s.doc.cod} {s.doc.num}</td><td>{s.fecha}</td><td className="r">{fmt(sumI(s.items))}</td><td><Badge e={s.estado} /></td><td className="nowrap">{s.estado === 'REGISTRADO' && <><Btn sm icon="send" onClick={() => enviar(s.sec, s.tipo)}>Enviar</Btn> <Btn sm v="g" onClick={() => descartar(s.sec)}>Descartar</Btn></>}</td></tr>)}</tbody></table>
-      : <p className="muted">El certificado no tiene modificaciones (ampliaciones, rebajas o anulación).</p>}
-  </Card>;
+      <div className="ds-sumas"><div><small>Monto Certificado (+)</small><b>{fmt(sumI(s0.items))}</b></div><div><small>Modificaciones del certificado (+ -)</small><b>{fmt(modsMonto)}</b></div><div><small>Suma de CA registrados (-)</small><b>{fmt(comp)}</b></div><div><small>Saldo por comprometer</small><b className="red">{fmt(tot - comp)}</b></div></div>
+      <div className="ds-cm">
+        <div className="ds-card"><h5>CLASIFICADOR</h5><table className="tbl sm"><thead><tr><th>Clasificador</th><th>Descripción</th><th className="r">Saldo PCA</th><th className="r">Monto origen</th></tr></thead><tbody>
+          {[...new Set(Object.keys(m).map(k => k.split('|')[0]))].map((cl, i) => <tr key={cl} className={i === 0 ? 'sel' : ''}><td className="mono">{cl}</td><td>{clasNom(cl)}</td><td className="r">{fmt(pim.filter(p => p.clas === cl).reduce((a, p) => a + p.saldo, 0))}</td><td className="r">S/.{fmt(Object.keys(m).filter(k => k.startsWith(cl + '|')).reduce((a, k) => a + m[k], 0))}</td></tr>)}</tbody></table></div>
+        <div className="ds-card"><h5>META</h5><table className="tbl sm"><thead><tr><th>S. Func.</th><th>Descripción</th><th className="r">Monto</th></tr></thead><tbody>
+          {Object.keys(m).map(k => { const me = k.split('|')[1]; return <tr key={k}><td className="mono">{me}</td><td>{CASOS[ej.id].metas.find(x => x.sec === me)?.nombre || ''}</td><td className="r">S/.{fmt(m[k])}</td></tr>; })}</tbody></table></div>
+      </div>
+      <p className="muted sm">Fecha de registro {c.fecha} · Aprobación {s0.fechaAprob || '—'} · Autorizado por {s0.aut || '—'}</p>
+    </> : <div className="ds-card">{mods.length ? <table className="tbl"><thead><tr><th>Sec.</th><th>Tipo</th><th>Documento</th><th>Fecha</th><th className="r">Monto</th><th>Estado</th><th /></tr></thead><tbody>
+      {mods.map(x => <tr key={x.sec}><td className="mono">{pad(x.sec, 4)}</td><td>{x.tipo}</td><td>{x.doc.cod} {x.doc.num}</td><td>{x.fecha}</td><td className="r">{fmt(sumI(x.items))}</td><td><Badge e={x.estado} /></td><td className="nowrap">{x.estado === 'REGISTRADO' && <><Btn sm icon="send" onClick={() => enviar(x.sec, x.tipo)}>Enviar</Btn> <Btn sm v="g" onClick={() => descartar(x.sec)}>Descartar</Btn></>}</td></tr>)}</tbody></table>
+      : <Vacio titulo="Sin modificaciones" texto="No se encontraron modificaciones (ampliaciones, rebajas o anulación)." icono="folder" />}</div>}
+  </div>;
 }
-
 const rubrosCtx = (ej: Ejecutora): [string, string][] => [...new Set(CASOS[ej.id].pim.map(p => p[1]))].map(r => [r, rubroNom(r)]);
 type Fila = Item & { montoTxt: string };
 

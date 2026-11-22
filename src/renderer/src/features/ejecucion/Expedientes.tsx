@@ -1,5 +1,5 @@
 /* Expedientes SIAF: compromiso mensual, devengado (y rendición), girado, pagado y Papeleta T-6. */
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useApp, intentar, type Pantalla } from '../../store';
 import { api } from '../../api';
 import { PanelLista, useFiltrado } from '../../components/Shell';
@@ -22,9 +22,17 @@ const TIT: Record<PExp, [string, string]> = { cm: ['Compromiso Mensual', 'Insert
 const metaNom = (ej: Ejecutora, m: string) => CASOS[ej.id].metas.find(x => x.sec === m)?.nombre || '';
 const filasDe = (m: Mapa, actuales: Item[] = []) => mapToItems(m).filter(i => i.monto > 0).map(i => ({ clas: i.clas, meta: i.meta, origen: i.monto, monto: actuales.find(x => x.clas === i.clas && x.meta === i.meta)?.monto }));
 
+/** Secuencias que muestra cada opción del menú, como en el SIAF-WEB (árbol Compromiso › Devengado › Girado › Pagado). */
+const VISIBLES: Record<PExp, ExpSec['fase'][]> = { cm: ['C'], dev: ['C', 'D'], gir: ['C', 'D', 'G', 'P'], t6: ['C', 'D', 'G', 'P', 'T6'] };
+const NIVEL: Record<string, number> = { C: 0, D: 1, G: 2, P: 2, T6: 2 };
+const ETQ = (s: ExpSec) => s.fase === 'C' ? (sumI(s.items) < 0 ? 'Rebaja' : 'Compromiso') : s.fase === 'D' ? (s.rend ? 'Rendición' : 'Devengado') : s.fase === 'G' ? 'Girado' : s.fase === 'P' ? 'Pagado' : 'Papeleta T-6';
+const CORTO: Record<string, string> = { C: 'Comp. Mensual', D: 'Devengado', G: 'Girado', P: 'Pagado', T6: 'Papeleta T-6' };
+const LETRA: Record<string, [string, string]> = { APROBADO: ['A', 'ok'], REGISTRADO: ['R', 'reg'], 'EN VERIFICACION': ['V', 'ver'], 'PENDIENTE DE FIRMA': ['P', 'pf'], 'ENVIADO A OPP': ['O', 'pf'], RECHAZADO: ['X', 'rej'], DESCARTADO: ['D', 'des'], ANULADO: ['N', 'des'] };
+export const Letra = ({ e }: { e: string }) => { const l = LETRA[e] || ['?', 'des']; return <span className={'letra l-' + l[1]} title={e}>{l[0]}</span>; };
+
 export function Expedientes({ pantalla }: { pantalla: Pantalla }) {
   const p = pantalla as PExp;
-  const { ej, sel, seleccionar } = useApp();
+  const { ej, sel, seleccionar, filtros, setFiltro } = useApp();
   const { porMes, porNum, orden } = useFiltrado();
   const [modo, setModo] = useState<Modo>(null);
   const e = ej!;
@@ -34,70 +42,99 @@ export function Expedientes({ pantalla }: { pantalla: Pantalla }) {
   if (p === 't6') lista = lista.filter(x => x.secs.some(s => s.fase === 'G' && s.estado === 'APROBADO'));
   lista.sort(orden);
   const exp = e.exps.find(x => x.id === sel.exp);
+  const visibles = (x: Expediente) => x.secs.filter(s => VISIBLES[p].includes(s.fase) && s.estado !== 'DESCARTADO');
+  const secSel = exp ? (visibles(exp).find(s => String(s.sec) === sel.sec) || visibles(exp).slice(-1)[0]) : undefined;
   let det;
   if (modo?.t === 'cm1') det = <FormCM1 ej={e} cerrar={() => setModo(null)} siguiente={(caId, items, base) => setModo({ t: 'cm', caId, items, base })} />;
-  else if (modo?.t === 'cm') det = <FormCM ej={e} m={modo} cerrar={id => { setModo(null); if (id) seleccionar('exp', id); }} setItems={items => setModo({ ...modo, items })} />;
+  else if (modo?.t === 'cm') det = <FormCM ej={e} m={modo} cerrar={id => { setModo(null); if (id) { seleccionar('exp', id); seleccionar('sec', null); } }} setItems={items => setModo({ ...modo, items })} />;
   else if (modo?.t === 'cmReb') det = <FormRebaja ej={e} exp={e.exps.find(x => x.id === modo.expId)!} anular={modo.anular} cerrar={() => setModo(null)} />;
-  else if (modo?.t === 'dev') det = <FormDev ej={e} exp={e.exps.find(x => x.id === modo.expId)!} sec={modo.sec} cerrar={() => setModo(null)} />;
-  else if (modo?.t === 'gir') det = <FormGir ej={e} exp={e.exps.find(x => x.id === modo.expId)!} sec={modo.sec} cerrar={() => setModo(null)} />;
-  else if (modo?.t === 't6') det = <FormT6 ej={e} exp={e.exps.find(x => x.id === modo.expId)!} sec={modo.sec} cerrar={() => setModo(null)} />;
-  else det = exp ? <DetalleExp ej={e} exp={exp} p={p} setModo={setModo} /> : <Vacio titulo="Detalle del expediente" icono="folder" texto={p === 'cm' ? 'Seleccione un expediente o pulse «+» para crear uno. Los compromisos anuales aprobados son el insumo del compromiso mensual.' : 'Seleccione un expediente de la lista. Solo se listan los expedientes con la fase anterior aprobada.'} />;
+  else if (modo?.t === 'dev') det = <FormDev ej={e} exp={e.exps.find(x => x.id === modo.expId)!} sec={modo.sec} cerrar={() => { setModo(null); seleccionar('sec', null); }} />;
+  else if (modo?.t === 'gir') det = <FormGir ej={e} exp={e.exps.find(x => x.id === modo.expId)!} sec={modo.sec} cerrar={() => { setModo(null); seleccionar('sec', null); }} />;
+  else if (modo?.t === 't6') det = <FormT6 ej={e} exp={e.exps.find(x => x.id === modo.expId)!} sec={modo.sec} cerrar={() => { setModo(null); seleccionar('sec', null); }} />;
+  else det = exp && secSel ? <DetalleExp ej={e} exp={exp} p={p} s={secSel} secs={visibles(exp)} elegir={n => seleccionar('sec', String(n))} setModo={setModo} /> : <Vacio titulo="Detalle del expediente" icono="doc" texto="Para poder visualizar el detalle, Usted debe seleccionar un expediente de la lista izquierda" />;
   return <>
-    <PanelLista titulo={TIT[p][0]} onNuevo={p === 'cm' ? () => { seleccionar('exp', null); setModo({ t: 'cm1' }); } : undefined} tituloNuevo="Crear expediente" ph="Buscar número expediente" total={lista.length} etiqueta="expedientes">
-      {lista.map(x => { const ca = e.cas.find(a => a.id === x.caId); const ult = x.secs.filter(s => p === 'cm' ? s.fase === 'C' : p === 'dev' ? s.fase === 'D' : p === 'gir' ? s.fase === 'G' || s.fase === 'P' : s.fase === 'T6').slice(-1)[0];
-        return <div key={x.id} className={'li' + (sel.exp === x.id ? ' on' : '')} onClick={() => { setModo(null); seleccionar('exp', x.id); }}><span className="ic"><Icon n="folder" /></span><div className="lib"><b>{pad(x.num, 5)}</b><small>CA {pad(ca?.num || 0, 5)} · {x.tipoOp} · {(ca?.prov.nom || '').slice(0, 26)}</small></div>{x.secs.every(s => s.hist) ? <Badge e="ANTECEDENTE" /> : ult ? <Badge e={ult.estado} /> : <Badge e="PENDIENTE" />}</div>; })}
+    <PanelLista titulo={p === 'cm' ? 'Registro SIAF - Compromiso Mensual' : p === 'dev' ? 'Registro SIAF - Devengado' : p === 'gir' ? 'Registro SIAF - Girado' : TIT[p][0]} onNuevo={p === 'cm' ? () => { seleccionar('exp', null); setModo({ t: 'cm1' }); } : undefined} tituloNuevo="Crear expediente" ph={p === 'gir' ? 'Buscar expediente' : 'Buscar número expediente'} total={lista.length} etiqueta="Expedientes"
+      limpiar={filtros.q || filtros.mes !== 'TODOS' ? () => { setFiltro('q', ''); setFiltro('mes', 'TODOS'); } : undefined}>
+      {lista.map(x => { const abierto = sel.exp === x.id;
+        return <div key={x.id} className={'arbol' + (abierto ? ' abierto' : '')}>
+          <div className="li" onClick={() => { setModo(null); seleccionar('sec', null); seleccionar('exp', abierto ? null : x.id); }}><span className="ic"><Icon n="doc" /></span><div className="lib"><b>{pad(x.num, 5)}</b></div><span className={'chev' + (abierto ? ' up' : '')}><Icon n="chevron" /></span></div>
+          {abierto && visibles(x).map(s => <div key={s.sec} className={'rama n' + NIVEL[s.fase] + (secSel?.sec === s.sec ? ' on' : '')} onClick={() => { setModo(null); seleccionar('sec', String(s.sec)); }}>
+            <span className="r-t">{ETQ(s)}</span><span className="r-s">{pad(s.ref && s.fase === 'P' ? s.ref : s.sec, 4)}</span><Letra e={s.estado} /></div>)}
+        </div>; })}
     </PanelLista>
     <div className="detail">{det}</div></>;
 }
 
-function DetalleExp({ ej, exp, p, setModo }: { ej: Ejecutora; exp: Expediente; p: PExp; setModo: (m: Modo) => void }) {
+function DetalleExp({ ej, exp, p, s, secs, elegir, setModo }: { ej: Ejecutora; exp: Expediente; p: PExp; s: ExpSec; secs: ExpSec[]; elegir: (n: number) => void; setModo: (m: Modo) => void }) {
   const { setReporte } = useApp();
-  const [abierto, setAbierto] = useState<Record<number, boolean>>({});
+  const [tab, setTab] = useState<'det' | 'mod' | 'act'>('det');
   const ca = ej.cas.find(a => a.id === exp.caId)!, cert = ej.certs.find(c => c.id === ca.certId)!, S = expSaldos(exp);
+  const ent = CASOS[ej.id].entidad;
   const habilitado = { cm: mapTot(caSaldo(ej, ca)) > 0.001 && ca.estado === 'APROBADO', dev: mapTot(S.porDevengar) > 0.001 || (esEncargo(exp) && mapTot(S.porRendir) > 0.001), gir: Object.values(S.porGirar).some(v => v > 0.001), t6: Object.values(S.porRendir).some(v => v > 0.001) }[p];
-  const insertar = () => {
-    if (p === 'cm') nuevoCMenExp(ej, exp, setModo);
-    else setModo({ t: p, expId: exp.id });
-  };
-  const enviar = async (s: ExpSec) => { if (await confirmar('¿Desea enviar el registro seleccionado?', { icono: 'send', ok: 'Enviar' })) intentar(() => api.flujo.enviar({ k: 'es', x: ej.id, id: exp.id, s: s.sec }), s.fase === 'D' ? `Transmisión y/o envío realizado correctamente para el devengado con secuencia N° ${s.sec}.` : s.fase === 'G' ? `Transmisión y/o envío realizado correctamente para el girado con secuencia N° ${s.sec}.` : 'Se transmitió con éxito.'); };
-  const descartar = async (s: ExpSec) => { if (await confirmar('¿Desea descartar el registro?', { icono: 'trash', detalle: 'La información descartada queda grabada como antecedente.' })) intentar(() => api.flujo.descartar({ k: 'es', x: ej.id, id: exp.id, s: s.sec }), s.fase === 'D' ? `Descarte del devengado realizado correctamente con secuencia N° ${s.sec}.` : 'Se descartó con éxito.'); };
-  const editar = (s: ExpSec) => {
-    if (s.fase === 'C') { const sal = caSaldo(ej, ca); addMap(sal, s.items, 1); setModo({ t: 'cm', caId: ca.id, expId: exp.id, sec: s.sec, items: s.items, base: { modalidad: exp.modalidad, tipoProc: exp.tipoProc } }); }
+  const insertar = () => { if (p === 'cm') nuevoCMenExp(ej, exp, setModo); else setModo({ t: p, expId: exp.id }); };
+  const enviar = async () => { if (await confirmar('¿Desea enviar el registro seleccionado?', { icono: 'send', ok: 'Enviar' })) intentar(() => api.flujo.enviar({ k: 'es', x: ej.id, id: exp.id, s: s.sec }), s.fase === 'D' ? `Transmisión y/o envío realizado correctamente para el devengado con secuencia N° ${s.sec}.` : s.fase === 'G' ? `Transmisión y/o envío realizado correctamente para el girado con secuencia N° ${s.sec}.` : 'Se transmitió con éxito.'); };
+  const descartar = async () => { if (await confirmar('¿Desea descartar el registro?', { icono: 'trash', detalle: 'La información descartada queda grabada como antecedente.' })) intentar(() => api.flujo.descartar({ k: 'es', x: ej.id, id: exp.id, s: s.sec }), s.fase === 'D' ? `Descarte del devengado realizado correctamente con secuencia N° ${s.sec}.` : 'Se descartó con éxito.'); };
+  const editar = () => {
+    if (s.fase === 'C') setModo({ t: 'cm', caId: ca.id, expId: exp.id, sec: s.sec, items: s.items, base: { modalidad: exp.modalidad, tipoProc: exp.tipoProc } });
     else setModo({ t: s.fase === 'D' ? 'dev' : s.fase === 'G' ? 'gir' : 't6', expId: exp.id, sec: s.sec } as Modo);
   };
-  const pagado = async (s: ExpSec) => {
+  const pagado = async () => {
     if (!(await confirmar('¿Registrar la confirmación del pago (Banco / Tesoro Público)?', { icono: 'bank', ok: 'Registrar' }))) return;
     const sec = await intentar(() => api.gir.pagado({ ejecutora: ej.id, expId: exp.id, sec: s.sec }));
     if (sec) intentar(() => api.flujo.enviar({ k: 'es', x: ej.id, id: exp.id, s: sec }), 'Pagado registrado. Se transmitió con éxito.');
   };
-  const tot = (pred: (s: ExpSec) => boolean) => mapTot(secMap(exp, pred));
-  return <Card>
-    <Encabezado titulo={'EXPEDIENTE Nº ' + pad(exp.num, 5)} sub={`Compromiso anual Nº ${pad(ca.num, 5)} · Certificado Nº ${pad(cert.num, 5)} · ${exp.tipoOp} - ${tipoOpNom(exp.tipoOp)}`} acciones={<Btn v="p" disabled={!habilitado} onClick={insertar}>{TIT[p][1]}</Btn>} />
-    <Grid><RO label="Entidad" c={6} v={CASOS[ej.id].entidad.secEjec + ' - ' + CASOS[ej.id].entidad.ueNom} /><RO label="Destino / Origen" c={3} v="5000 - TESORO PÚBLICO" /><RO label="FF / Rubro" c={3} v={exp.ff + ' / ' + exp.rubro + ' - ' + rubroNom(exp.rubro)} /><RO label="Proveedor" c={6} v={ca.prov.tipo + ' ' + ca.prov.num + ' - ' + ca.prov.nom} /><RO label="Modalidad de compra" c={3} v={exp.modalidad} /><RO label="Tipo proc. sel." c={3} v={exp.tipoProc} /></Grid>
-    <Sumas items={[['Comprometido', tot(s => s.fase === 'C' && s.estado === 'APROBADO')], ['Devengado', tot(s => s.fase === 'D' && !s.rend && s.estado === 'APROBADO')], ...(esEncargo(exp) ? [['Rendido', tot(s => s.fase === 'D' && s.rend && s.estado === 'APROBADO')] as [string, number]] : []), ['Girado', tot(s => s.fase === 'G' && s.estado === 'APROBADO')], esEncargo(exp) ? ['Devuelto T-6', tot(s => s.fase === 'T6' && s.estado === 'APROBADO')] : ['Pagado', tot(s => s.fase === 'P' && s.estado === 'APROBADO')], [p === 'cm' ? 'Saldo del CA' : p === 'dev' ? 'Por devengar' : p === 'gir' ? 'Por girar' : 'Por rendir', p === 'cm' ? mapTot(caSaldo(ej, ca)) : p === 'dev' ? mapTot(S.porDevengar) : p === 'gir' ? mapTot(S.porGirar) : mapTot(S.porRendir), true]]} />
-    <h4>Secuencias del expediente</h4>
-    <table className="tbl"><thead><tr><th>Sec.</th><th>Fase</th><th>Documento</th><th>Fecha</th><th className="r">Monto</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
-      {exp.secs.map(s => { const reg = s.estado === 'REGISTRADO', apr = s.estado === 'APROBADO', ex = abierto[s.sec];
-        return [<tr key={s.sec} className={ex ? 'xon' : ''}><td className="mono">{pad(s.sec, 4)}</td><td>{FASE(s)}</td><td>{s.doc.cod} {s.doc.serie ? s.doc.serie + '-' : ''}{s.doc.num}</td><td>{s.fecha}</td><td className="r">{fmt(sumI(s.items))}</td><td><Badge e={s.estado} /></td>
-          <td className="nowrap">{reg && <Btn sm icon="send" onClick={() => enviar(s)}>Enviar</Btn>}
-            {s.fase === 'C' ? <Menu3 opciones={[['Modificar', () => editar(s), !reg], ['Descartar', () => descartar(s), !reg], ['Anular', () => setModo({ t: 'cmReb', expId: exp.id, anular: true }), !apr || sumI(s.items) < 0], ['Ampliar', () => nuevoCMenExp(ej, exp, setModo), !apr], ['Rebajar', () => setModo({ t: 'cmReb', expId: exp.id, anular: false }), !apr || sumI(s.items) < 0]]} />
-              : reg && <Menu3 opciones={[['Modificar', () => editar(s)], ['Descartar', () => descartar(s)]]} />}
-            {p === 'gir' && s.fase === 'G' && apr && !s.pagado && <Btn sm icon="bank" onClick={() => pagado(s)}>Registrar pagado</Btn>}
-            <button className="lnk" onClick={() => setAbierto({ ...abierto, [s.sec]: !ex })}>{ex ? 'Ocultar' : 'Detalle'}</button></td></tr>,
-        ex && <tr key={s.sec + 'x'} className="xrow"><td colSpan={7}><div className="xbox">
-          <Grid><RO label="Documento A" c={5} v={s.doc.cod + ' - ' + docNom(s.doc.cod)} /><RO label="Serie" c={2} v={s.doc.serie} /><RO label="Número" c={3} v={s.doc.num} /><RO label="Fecha doc." c={2} v={s.doc.fecha} />
-            {s.prov && <RO label="Proveedor" c={8} v={s.prov.tipo + ' ' + s.prov.num + ' - ' + s.prov.nom} />}{s.tipoPago && <RO label="Tipo de pago" v={s.tipoPago} />}{s.tipoRecurso && <RO label="Tipo de recurso" c={6} v={s.tipoRecurso} />}{s.tipoComp && <RO label="Tipo compromiso" c={6} v={s.tipoComp} />}
-            <RO label="Notas / justificación" c={12} v={s.notas} /><RO label="Fecha de registro" v={s.fecha} /><RO label="Fecha aprobación" v={s.fechaAprob || '—'} /><RO label="Autorizado" v={s.aut || '—'} /></Grid>
-          <TablaItems items={s.items} />
-          {s.giro && <><Grid><RO label="Tipo de giro" c={3} v={s.giro.tipoGiro} /><RO label="Medio de pago" c={5} v={s.giro.medio} /><RO label="Beneficiario" v={s.giro.benef.tipo + ' ' + s.giro.benef.num + ' - ' + s.giro.benef.nom} /><RO label="Total girado" v={fmt(sumI(s.items))} /><RO label="Retenciones" v={fmt(sumI(s.giro.ret))} /><RO label="Neto pagado" v={fmt(sumI(s.items) - sumI(s.giro.ret))} /></Grid>
-            {s.giro.ret.length > 0 && <table className="tbl sm"><thead><tr><th>Retención / deducción</th><th className="r">Monto</th></tr></thead><tbody>{s.giro.ret.map((r, i) => <tr key={i}><td>{r.concepto}</td><td className="r">{fmt(r.monto)}</td></tr>)}</tbody></table>}</>}
-          {s.comp.length > 0 && <><h4>Comprobantes de la rendición</h4><table className="tbl sm"><thead><tr><th>Tipo</th><th>Serie - número</th><th>Fecha</th><th>Concepto</th><th>Clasificador</th><th className="r">Monto</th></tr></thead><tbody>{s.comp.map((c, i) => <tr key={i}><td>{c.tipo}</td><td>{c.num}</td><td>{c.fecha}</td><td>{c.desc}</td><td className="mono">{c.clas}</td><td className="r">{fmt(c.monto)}</td></tr>)}</tbody></table></>}
-        </div></td></tr>]; })}
-    </tbody></table>
-    <p className="muted sm">{p === 'dev' ? 'A diferencia del compromiso mensual, el devengado requiere la autorización del Director General de Administración (DGA) en el MADAF.' : p === 'cm' ? 'Con el estado En verificación el sistema revisa que no haya incongruencias; de ser el caso, el expediente se aprueba automáticamente.' : p === 'gir' ? 'Los giros se autorizan en el MADAF por los responsables del manejo de cuentas bancarias acreditados en el AERAF.' : 'La Papeleta T-6 registra la devolución del saldo no utilizado; rebaja la ejecución y no es un extorno.'} · <a onClick={() => setReporte('exp', exp.id)}>Reporte del expediente</a></p>
-  </Card>;
+  const reg = s.estado === 'REGISTRADO', apr = s.estado === 'APROBADO';
+  const opciones: [string, () => void, boolean?][] = s.fase === 'C'
+    ? [['Modificar', editar, !reg], ['Descartar', descartar, !reg], ['Anular', () => setModo({ t: 'cmReb', expId: exp.id, anular: true }), !apr || sumI(s.items) < 0], ['Ampliar', () => nuevoCMenExp(ej, exp, setModo), !apr], ['Rebajar', () => setModo({ t: 'cmReb', expId: exp.id, anular: false }), !apr || sumI(s.items) < 0], ['Reporte del expediente', () => setReporte('exp', exp.id)]]
+    : [['Modificar', editar, !reg], ['Descartar', descartar, !reg], ...(s.fase === 'G' ? [['Registrar pagado (abono)', pagado, !apr || s.pagado] as [string, () => void, boolean]] : []), ['Reporte del expediente', () => setReporte('exp', exp.id)]];
+  const tot = (pred: (x: ExpSec) => boolean) => mapTot(secMap(exp, pred));
+  const monto = sumI(s.items);
+  const mods = s.fase === 'C' ? tot(x => x.fase === 'C' && x.sec !== s.sec && sumI(x.items) < 0 && x.estado === 'APROBADO') : 0;
+  const [l3, v3, v4] = s.fase === 'C' ? ['Devengado', tot(x => x.fase === 'D' && !x.rend && x.estado === 'APROBADO'), mapTot(S.porDevengar)]
+    : s.fase === 'D' ? ['Girado', tot(x => x.fase === 'G' && x.estado === 'APROBADO'), s.rend ? mapTot(S.porRendir) : mapTot(S.porGirar)]
+      : s.fase === 'G' ? ['Pagado', s.pagado ? monto : 0, s.pagado ? 0 : monto - sumI(s.giro?.ret || [])] : ['Ejecutado', monto, 0];
+  const kv = (k: string, v: ReactNode, full?: boolean) => <div className={'kv-f' + (full ? ' full' : '')}><span>{k}:</span><b>{v === '' || v == null ? '-' : v}</b></div>;
+  const caSec = pad(cert.num, 10) + ' - ' + pad(ej.cas.filter(a => a.certId === cert.id).findIndex(a => a.id === ca.id) + 2, 4);
+  return <div className="det-siaf">
+    <div className="ds-cab"><h2>EXPEDIENTE Nº {pad(exp.num, 5)}</h2>{p !== 't6' || true ? <button className="btn-ins" disabled={!habilitado} onClick={insertar}>{TIT[p][1]}</button> : null}</div>
+    <div className="ds-ent">
+      {kv('Entidad', ent.secEjec + ' - ' + ent.ueNom)}{kv('Exp. Fin. Temporal', '0')}
+      {kv('Destino/Origen', '5000 - MEF - TESORO PÚBLICO')}{kv('Tipo Proc. Sel.', exp.tipoProc)}
+      {kv('Area', '0000 - ' + ent.ueNom)}<span />
+      {kv('Tipo de operación', exp.tipoOp + ' - ' + tipoOpNom(exp.tipoOp))}<span />
+      {kv('Modalidad compra', exp.modalidad)}<span />
+      {kv('Fase contractual', exp.faseContr || '-')}<span />
+    </div>
+    <div className="ds-barra">
+      <select className="ds-sec" value={s.sec} onChange={ev => elegir(+ev.target.value)}>{secs.map(x => <option key={x.sec} value={x.sec}>{CORTO[x.fase]} {pad(x.sec, 4)}</option>)}</select>
+      <div className="ds-tabs"><a className={tab === 'det' ? 'on' : ''} onClick={() => setTab('det')}><Icon n="doc" /> Detalles</a><a className={tab === 'mod' ? 'on' : ''} onClick={() => setTab('mod')}><Icon n="doc" /> Modificaciones</a><a className={tab === 'act' ? 'on' : ''} onClick={() => setTab('act')}><Icon n="doc" /> Actividad</a></div>
+      <Menu3 opciones={opciones} />
+      <button className="btn-env" disabled={!reg} onClick={enviar}><Icon n="send" /> Enviar</button>
+    </div>
+    {tab === 'det' && <>
+      <div className="ds-card ds-kv">
+        <div>{kv('Secuencia', pad(s.sec, 4))}{s.fase !== 'C' && kv('FF/Rb', exp.ff + ' - ' + exp.rubro + ' ' + rubroNom(exp.rubro))}{s.fase === 'C' && <>{kv('Documento', s.doc.cod + ' ' + docNom(s.doc.cod))}{kv('Número', (s.doc.serie ? s.doc.serie + '-' : '') + s.doc.num)}{kv('Fecha', s.doc.fecha)}{kv('Rubro', exp.rubro + ' - ' + rubroNom(exp.rubro))}</>}
+          {kv('Proveedor', s.giro ? s.giro.benef.tipo + ' - ' + s.giro.benef.num + ' - ' + s.giro.benef.nom : s.prov ? s.prov.tipo + ' - ' + s.prov.num + ' - ' + s.prov.nom : '9 - 0 - SIN NOMBRE')}{kv('Entidad recíproca', s.ent || '')}{s.giro && kv('Tipo giro', s.giro.tipoGiro)}</div>
+        <div>{kv('Estado', <span className={'st-pt ' + (apr ? 'ok' : '')}>• {s.estado.charAt(0) + s.estado.slice(1).toLowerCase()}</span>)}{kv('Moneda', 'Nuevo Sol')}{kv('Monto origen', fmt(monto))}{kv('Tipo cambio', '1.000000000000000')}{kv('Certificado anual', caSec)}{kv('Convenio Proyecto', '000 - Sin proyecto')}</div>
+        {s.fase !== 'C' && <div><h5>DOCUMENTO A</h5>{kv('Código documento', s.doc.cod + ' - ' + docNom(s.doc.cod))}{kv('Serie', s.doc.serie)}{kv('Número', s.doc.num)}{kv('Fecha', s.doc.fecha)}</div>}
+        <div><h5>{s.giro ? 'MEDIO DE PAGO' : 'MODALIDAD DE PAGO'}</h5>{s.giro ? <>{kv('Medio de pago', s.giro.medio)}{kv('Retenciones', fmt(sumI(s.giro.ret)))}{kv('Neto pagado', fmt(monto - sumI(s.giro.ret)))}</> : <>{kv('Tipo pago', s.tipoPago || exp.secs[0]?.tipoPago)}{kv('Tipo recurso', s.tipoRecurso || exp.secs[0]?.tipoRecurso)}{kv('Tipo compromiso', s.tipoComp || '11 - MES VIGENTE')}</>}</div>
+        {kv('Notas', s.notas, true)}
+      </div>
+      <div className="ds-sumas"><div><small>Monto inicial</small><b>S/ {fmt(monto)}</b></div><div><small>Modificaciones</small><b>S/ {fmt(mods)}</b></div><div><small>{l3}</small><b>S/ {fmt(v3)}</b></div><div><small>Saldo</small><b className="red">S/ {fmt(v4)}</b></div></div>
+      {s.giro && s.giro.ret.length > 0 && <div className="ds-card"><h5>RETENCIONES / DEDUCCIONES</h5><table className="tbl sm"><thead><tr><th>Concepto</th><th className="r">Monto</th></tr></thead><tbody>{s.giro.ret.map((r, i) => <tr key={i}><td>{r.concepto}</td><td className="r">{fmt(r.monto)}</td></tr>)}</tbody></table></div>}
+      {s.comp.length > 0 && <div className="ds-card"><h5>COMPROBANTES DE LA RENDICIÓN</h5><table className="tbl sm"><thead><tr><th>Tipo</th><th>Serie - número</th><th>Fecha</th><th>Concepto</th><th>Clasificador</th><th className="r">Monto</th></tr></thead><tbody>{s.comp.map((c, i) => <tr key={i}><td>{c.tipo}</td><td>{c.num}</td><td>{c.fecha}</td><td>{c.desc}</td><td className="mono">{c.clas}</td><td className="r">{fmt(c.monto)}</td></tr>)}</tbody></table></div>}
+      <div className="ds-cm">
+        <div className="ds-card"><h5>CLASIFICADOR</h5><table className="tbl sm"><thead><tr><th>Clasificador</th><th>Descripción</th><th className="r">Monto origen</th></tr></thead><tbody>{s.items.map((i, k) => <tr key={k} className={k === 0 ? 'sel' : ''}><td className="mono">{i.clas}</td><td>{clasNom(i.clas)}</td><td className="r">S/.{fmt(i.monto)}</td></tr>)}</tbody></table></div>
+        <div className="ds-card"><h5>META</h5><table className="tbl sm"><thead><tr><th>Sec. Func.</th><th>Descripción</th><th className="r">Monto</th></tr></thead><tbody>{s.items.map((i, k) => <tr key={k}><td className="mono">{i.meta}</td><td>{metaNom(ej, i.meta)}</td><td className="r">S/.{fmt(i.monto)}</td></tr>)}</tbody></table></div>
+      </div></>}
+    {tab === 'mod' && <div className="ds-card">{exp.secs.filter(x => x.fase === s.fase && x.sec !== s.sec && sumI(x.items) < 0).length ? <table className="tbl sm"><thead><tr><th>Secuencia</th><th>Tipo</th><th>Fecha</th><th className="r">Monto</th><th>Estado</th></tr></thead><tbody>{exp.secs.filter(x => x.fase === s.fase && x.sec !== s.sec && sumI(x.items) < 0).map(x => <tr key={x.sec}><td className="mono">{pad(x.sec, 4)}</td><td>REBAJA</td><td>{x.fecha}</td><td className="r">{fmt(sumI(x.items))}</td><td><Badge e={x.estado} /></td></tr>)}</tbody></table> : <Vacio titulo="Sin modificaciones" texto="No se encontraron modificaciones para esta secuencia." icono="folder" />}</div>}
+    {tab === 'act' && <div className="ds-card"><table className="tbl sm"><thead><tr><th>Actividad</th><th>Fecha</th><th>Responsable</th></tr></thead><tbody>
+      <tr><td>Registro</td><td>{s.fecha}</td><td>-</td></tr>
+      {s.estado !== 'REGISTRADO' && <tr><td>Envío / verificación</td><td>{s.fecha}</td><td>SISTEMA</td></tr>}
+      {s.fechaAprob && <tr><td>Aprobación</td><td>{s.fechaAprob}</td><td>{s.aut || 'SISTEMA (sin incongruencias)'}</td></tr>}
+      <tr><td>Estado actual</td><td colSpan={2}><Badge e={s.estado} /></td></tr></tbody></table></div>}
+  </div>;
 }
-
 async function nuevoCMenExp(ej: Ejecutora, exp: Expediente, setModo: (m: Modo) => void) {
   const ca = ej.cas.find(a => a.id === exp.caId)!; const cert = ej.certs.find(c => c.id === ca.certId)!;
   const sal = caSaldo(ej, ca);

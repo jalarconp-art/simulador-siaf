@@ -94,8 +94,8 @@ test('certificación en práctica: grabar, enviar, aprobar en la OPP y firmar en
   await page.locator('input.num.req').nth(0).fill('5959341.13');
   await page.getByRole('button', { name: 'Grabar' }).click(); await confirmar();
   await expect(page.locator('.toast', { hasText: 'Se ha registrado el certificado' }).first()).toBeVisible();
-  await page.locator('.detail .btn', { hasText: 'Enviar' }).first().click(); await confirmar();
-  await expect(page.locator('.dh .badge')).toHaveText('ENVIADO A OPP', { timeout: 10000 });
+  await page.locator('.btn-env').click(); await confirmar();
+  await expect(page.locator('.det-siaf .ds-kv')).toContainText('ENVIADO A OPP', { timeout: 10000 });
 
   await page.locator('.mods select').selectOption('opl');
   await page.locator('tbody input[type=checkbox]').first().check();
@@ -121,7 +121,7 @@ test('certificación en práctica: grabar, enviar, aprobar en la OPP y firmar en
 test('otro trabajador no ve lo registrado por el primero', async () => {
   await salir(); await login('RU20262', 'Condori2026');
   await page.locator('.tile', { hasText: 'Ejecucion Presupuestal' }).click();
-  await expect(page.locator('.lp-list')).toContainText('No hay registros');
+  await expect(page.locator('.lp-list')).toContainText('No se encontraron');
 });
 
 test('registro de una cuenta nueva con correo electrónico', async () => {

@@ -7,6 +7,8 @@ import { Badge, Btn, Campo, Card, Encabezado, Grid, Lista, Menu3, RO, Sumas, Vac
 import { confirmar } from '../../components/Dialogos';
 import { seleccionarProveedor } from '../../components/Selectores';
 import { Icon } from '../../components/Icon';
+import { Letra } from './Expedientes';
+import { CASOS } from '@shared/casos';
 import type { Certificado, CompromisoAnual as CA, Ejecutora, Item } from '@shared/types';
 import { CAT } from '@shared/catalogo';
 import { caMap, caMonto, caSaldo, caUsado, certComprometido, certEstado, certMap, certSaldo, vivo } from '@shared/domain/saldos';
@@ -29,44 +31,55 @@ export function CompromisoAnual() {
   else if (modo) det = <FormModCA ej={e} ca={e.cas.find(x => x.id === modo.id)!} tipo={modo.t} cerrar={() => setModo(null)} />;
   else det = cert ? <DetalleCA ej={e} c={cert} setModo={setModo} /> : <Vacio titulo="Compromiso Anual" texto="Aparecen todos los certificados aprobados. Seleccione el certificado para registrar el compromiso anual." />;
   return <>
-    <PanelLista titulo="Compromiso Anual" ph="Buscar número certificado" total={lista.length} etiqueta="certificados aprobados">
-      {lista.map(c => { const on = sel.ca === c.id; const cas = e.cas.filter(a => a.certId === c.id && vivo(a.estado)); return <div key={c.id}>
-        <div className={'li' + (on ? ' on' : '')} onClick={() => { setModo(null); seleccionar('ca', c.id); }}><span className="ic"><Icon n="doc" /></span><div className="lib"><b>{pad(c.num, 5)}</b><small>Saldo S/ {fmt(mapTot(certSaldo(e, c)))} · {cas.length} CA</small></div></div>
-        {on && <div className="lix"><div><span className="mono">0001</span> CERTIFICACIÓN <i>APROBADO</i></div>{cas.map((a, i) => <div key={a.id}><span className="mono">{pad(i + 2, 4)}</span> COMPROMISO ANUAL <i>{a.estado}</i></div>)}</div>}</div>; })}
+    <PanelLista titulo="Compromiso Anual" ph="Buscar número certificado" total={lista.length} etiqueta="certificados">
+      {lista.map(c => { const on = sel.ca === c.id; const cas = e.cas.filter(a => a.certId === c.id && a.estado !== 'DESCARTADO'); return <div key={c.id} className={'arbol' + (on ? ' abierto' : '')}>
+        <div className="li" onClick={() => { setModo(null); seleccionar('casec', null); seleccionar('ca', on ? null : c.id); }}><span className="ic"><Icon n="doc" /></span><div className="lib"><b>{pad(c.num, 5)}</b></div><span className={'chev' + (on ? ' up' : '')}><Icon n="chevron" /></span></div>
+        {on && <><div className={'rama' + (!sel.casec ? ' on' : '')} onClick={() => { setModo(null); seleccionar('casec', null); }}><span className="r-t">Certificación</span><span className="r-s">0001</span><Letra e="APROBADO" /></div>
+          {cas.map((a, i) => <div key={a.id} className={'rama n1' + (sel.casec === a.id ? ' on' : '')} onClick={() => { setModo(null); seleccionar('casec', a.id); }}><span className="r-t">Comp. Anual</span><span className="r-s">{pad(i + 2, 4)}</span><Letra e={a.estado} /></div>)}</>}
+      </div>; })}
     </PanelLista>
     <div className="detail">{det}</div></>;
 }
 
 function DetalleCA({ ej, c, setModo }: { ej: Ejecutora; c: Certificado; setModo: (m: Modo) => void }) {
-  const { setReporte, irPantalla } = useApp();
-  const [abierto, setAbierto] = useState<Record<string, boolean>>({});
+  const { setReporte, irPantalla, sel, seleccionar } = useApp();
+  const [tab, setTab] = useState('det');
   const tot = mapTot(certMap(c)), comp = mapTot(certComprometido(ej, c)), sal = r2(tot - comp);
-  const cas = ej.cas.filter(a => a.certId === c.id);
-  const enviar = async (a: CA) => { if (await confirmar('Enviar el registro', { icono: 'send' })) intentar(() => api.flujo.enviar({ k: 'ca', x: ej.id, id: a.id }), 'El compromiso anual fue enviado'); };
-  const descartar = async (a: CA) => { if (await confirmar('¿Descartar el compromiso anual?', { icono: 'trash', ok: 'Descartar', detalle: 'Se recupera el marco presupuestal del certificado.' })) intentar(() => api.flujo.descartar({ k: 'ca', x: ej.id, id: a.id }), 'El compromiso anual fue descartado'); };
-  return <Card>
-    <Encabezado titulo={'CERTIFICADO Nº ' + pad(c.num, 5)} sub="Cabecera del certificado aprobado" acciones={<Btn v="p" disabled={sal <= 0} onClick={() => setModo({ t: 'nuevo', certId: c.id })}>Insertar Compromiso</Btn>} />
-    <Grid><RO label="Documento" v={c.doc.cod + ' - ' + docNom(c.doc.cod)} /><RO label="Número" v={c.doc.num} /><RO label="Fecha" v={c.doc.fecha} /><RO label="Rubro" c={6} v={c.rubro + ' - ' + rubroNom(c.rubro)} /><RO label="Referencia (tipo certificación)" c={6} v={c.tipoCert} /></Grid>
-    <Sumas items={[['Monto certificado', tot], ['Comprometido', comp], ['Saldo por comprometer', sal, true]]} />
-    <h4>Secuencias</h4>
-    <table className="tbl"><thead><tr><th>Sec.</th><th>Registro</th><th>Tipo op.</th><th>Proveedor</th><th className="r">Monto</th><th>Estado</th><th>Acciones</th><th /></tr></thead><tbody>
-      <tr><td className="mono">0001</td><td>CERTIFICACIÓN{c.secs.length > 1 ? ' (CON MODIFICACIONES)' : ''}</td><td>—</td><td>—</td><td className="r">{fmt(tot)}</td><td><Badge e="APROBADO" /></td><td /><td /></tr>
-      {cas.map((a, i) => { const reg = a.estado === 'REGISTRADO', apr = a.estado === 'APROBADO', ex = abierto[a.id]; const mm = caMap(a), um = caUsado(ej, a);
-        return [<tr key={a.id} className={ex ? 'xon' : ''}><td className="mono">{pad(i + 2, 4)}</td><td>COMPROMISO ANUAL Nº {pad(a.num, 5)}</td><td>{a.tipoOp}</td><td>{a.prov.num}</td><td className="r">{fmt(caMonto(a) || sumI(a.items))}</td><td><Badge e={a.estado} /></td>
-          <td className="nowrap">{reg && <Btn sm icon="send" onClick={() => enviar(a)}>Enviar</Btn>}<Menu3 opciones={[['Modificar', () => setModo({ t: 'editar', id: a.id }), !reg], ['Descartar', () => descartar(a), !reg], ['Anular', () => setModo({ t: 'ANULACION', id: a.id }), !apr], ['Ampliar', () => setModo({ t: 'AMPLIACION', id: a.id }), !apr], ['Rebajar', () => setModo({ t: 'REBAJA', id: a.id }), !apr]]} /></td>
-          <td><button className="lnk" onClick={() => setAbierto({ ...abierto, [a.id]: !ex })}>{ex ? 'Ocultar' : 'Detalles'}</button></td></tr>,
-        ex && <tr key={a.id + 'x'} className="xrow"><td colSpan={8}><div className="xbox">
-          <Grid><RO label="Compromiso anual Nº" c={3} v={pad(a.num, 5)} /><RO label="Tipo de operación" c={9} v={a.tipoOp + ' - ' + tipoOpNom(a.tipoOp)} /><RO label="Documento" c={6} v={a.doc.cod + ' - ' + docNom(a.doc.cod)} /><RO label="Número" c={3} v={a.doc.num} /><RO label="Fecha" c={3} v={a.doc.fecha} />
-            <RO label="Proveedor" c={8} v={a.prov.tipo + ' ' + a.prov.num + ' - ' + a.prov.nom} /><RO label="Moneda" v="S/. (NUEVO SOL)" /><RO label="Justificación" c={12} v={a.justif} /><RO label="Fecha de registro" v={a.fecha} /><RO label="Fecha aprobación" v={a.fechaAprob || '—'} /><RO label="Autorizado (MADAF)" v={a.aut || '—'} /></Grid>
-          <table className="tbl"><thead><tr><th>Clasificador</th><th>Meta</th><th className="r">Monto CA</th><th className="r">Comprometido mensual</th><th className="r">Saldo</th></tr></thead><tbody>{Object.keys(mm).map(k => <tr key={k}><td className="mono" title={clasNom(k.split('|')[0])}>{k.split('|')[0]}</td><td>{k.split('|')[1]}</td><td className="r">{fmt(mm[k])}</td><td className="r">{fmt(um[k] || 0)}</td><td className="r">{fmt(mm[k] - (um[k] || 0))}</td></tr>)}</tbody></table>
-          {a.mods.length > 0 && <><h4>Modificaciones del compromiso anual</h4><table className="tbl"><thead><tr><th>Nº</th><th>Tipo</th><th>Documento</th><th className="r">Monto</th><th>Estado</th><th /></tr></thead><tbody>{a.mods.map(md => <tr key={md.n}><td>{md.n}</td><td>{md.tipo}</td><td>{md.doc.cod} {md.doc.num}</td><td className="r">{fmt(sumI(md.items))}</td><td><Badge e={md.estado} /></td><td>{md.estado === 'REGISTRADO' && <><Btn sm icon="send" onClick={async () => { if (await confirmar('Enviar el registro', { icono: 'send' })) intentar(() => api.flujo.enviar({ k: 'cam', x: ej.id, id: a.id, n: md.n }), { AMPLIACION: 'La ampliación fue enviada.', REBAJA: 'La rebaja fue enviada.', ANULACION: 'La anulación fue enviada.' }[md.tipo]); }}>Enviar</Btn> <Btn sm v="g" onClick={() => intentar(() => api.flujo.descartar({ k: 'cam', x: ej.id, id: a.id, n: md.n }), 'Modificación descartada')}>Descartar</Btn></>}</td></tr>)}</tbody></table></>}
-          <div className="fbtn"><Btn sm icon="print" onClick={() => setReporte('ca', a.id)}>Nota de compromiso anual</Btn>{apr && <Btn sm onClick={() => irPantalla('cm')}>Ir a Compromiso Mensual ›</Btn>}</div></div></td></tr>];
-      })}
-    </tbody></table>
-    <p className="muted sm">Los certificados descartados no se muestran. Las secuencias anuladas se visualizan solo como información.</p>
-  </Card>;
+  const cas = ej.cas.filter(a => a.certId === c.id && a.estado !== 'DESCARTADO');
+  const a = cas.find(x => x.id === sel.casec);
+  const enviar = async (x: CA) => { if (await confirmar('Enviar el registro', { icono: 'send' })) intentar(() => api.flujo.enviar({ k: 'ca', x: ej.id, id: x.id }), 'El compromiso anual fue enviado'); };
+  const descartar = async (x: CA) => { if (await confirmar('¿Descartar el compromiso anual?', { icono: 'trash', ok: 'Descartar', detalle: 'Se recupera el marco presupuestal del certificado.' })) intentar(() => api.flujo.descartar({ k: 'ca', x: ej.id, id: x.id }), 'El compromiso anual fue descartado'); };
+  const kv = (k: string, v: string, full?: boolean) => <div className={'kv-f' + (full ? ' full' : '')}><span>{k}:</span><b>{v || '-'}</b></div>;
+  const reg = a?.estado === 'REGISTRADO', apr = a?.estado === 'APROBADO';
+  const mm = a ? caMap(a) : certMap(c, true), um = a ? caUsado(ej, a) : {};
+  const metaNom = (me: string) => CASOS[ej.id].metas.find(x => x.sec === me)?.nombre || '';
+  return <div className="det-siaf">
+    <div className="ds-cab"><h2>CERTIFICADO Nº {pad(c.num, 5)}</h2><button className="btn-ins" disabled={sal <= 0} onClick={() => setModo({ t: 'nuevo', certId: c.id })}>Insertar Compromiso</button></div>
+    <div className="ds-barra">
+      <select className="ds-sec" value={a?.id || ''} onChange={ev => seleccionar('casec', ev.target.value || null)}><option value="">Certificación 0001</option>{cas.map((x, i) => <option key={x.id} value={x.id}>Comp. Anual {pad(i + 2, 4)}</option>)}</select>
+      <div className="ds-tabs"><a className={tab === 'det' ? 'on' : ''} onClick={() => setTab('det')}><Icon n="doc" /> Detalles</a><a className={tab === 'mods' ? 'on' : ''} onClick={() => setTab('mods')}><Icon n="doc" /> Modificaciones</a></div>
+      <Menu3 opciones={a ? [['Modificar', () => setModo({ t: 'editar', id: a.id }), !reg], ['Descartar', () => descartar(a), !reg], ['Anular', () => setModo({ t: 'ANULACION', id: a.id }), !apr], ['Ampliar', () => setModo({ t: 'AMPLIACION', id: a.id }), !apr], ['Rebajar', () => setModo({ t: 'REBAJA', id: a.id }), !apr], ['Nota de compromiso anual', () => setReporte('ca', a.id)], ['Ir a Compromiso Mensual', () => irPantalla('cm'), !apr]] : [['Nota de certificación', () => setReporte('cert', c.id)]]} />
+      <button className="btn-env" disabled={!reg} onClick={() => a && enviar(a)}><Icon n="send" /> Enviar</button>
+    </div>
+    {tab === 'det' ? <>
+      {a ? <div className="ds-card ds-kv">
+        <div>{kv('Secuencia', pad(cas.indexOf(a) + 2, 4))}{kv('Tipo de operación', a.tipoOp + ' - ' + tipoOpNom(a.tipoOp))}{kv('Documento', a.doc.cod + ' - ' + docNom(a.doc.cod))}{kv('Número', a.doc.num)}{kv('Fecha', a.doc.fecha)}{kv('Proveedor', a.prov.tipo + ' - ' + a.prov.num + ' - ' + a.prov.nom)}</div>
+        <div>{kv('Estado', a.estado)}{kv('Número CA', pad(a.num, 5))}{kv('Moneda', 'NUEVO SOL')}{kv('Monto origen', fmt(sumI(a.items)))}{kv('Certificado', pad(c.num, 10))}{kv('Tipo certificación', c.tipoCert)}</div>
+        {kv('Justificación', a.justif, true)}
+      </div> : <div className="ds-card ds-kv">
+        <div>{kv('Secuencia', '0001')}{kv('Documento', c.doc.cod + ' - ' + docNom(c.doc.cod))}{kv('Número', c.doc.num)}{kv('Fecha', c.doc.fecha)}{kv('Rubro', c.rubro + ' - ' + rubroNom(c.rubro))}</div>
+        <div>{kv('Moneda', 'NUEVO SOL')}{kv('Tipo certificación', c.tipoCert)}{kv('Referencia', 'OTROS')}{kv('Dispositivo legal', c.disp || 'OTROS')}</div>
+        {kv('Justificación', c.justif, true)}
+      </div>}
+      {a ? <div className="ds-sumas"><div><small>Monto Compromiso Anual (+)</small><b>{fmt(sumI(a.items))}</b></div><div><small>Modificaciones del CA (+ -)</small><b>{fmt(caMonto(a) - sumI(a.items))}</b></div><div><small>Comprometido en expedientes (-)</small><b>{fmt(Object.values(um).reduce((x, y) => x + y, 0))}</b></div><div><small>Saldo por comprometer</small><b className="red">{fmt(caMonto(a) - Object.values(um).reduce((x, y) => x + y, 0))}</b></div></div>
+        : <div className="ds-sumas"><div><small>Monto Certificado (+)</small><b>{fmt(sumI(c.secs[0].items))}</b></div><div><small>Modificaciones del certificado (+ -)</small><b>{fmt(tot - sumI(c.secs[0].items))}</b></div><div><small>Suma de CA registrados (-)</small><b>{fmt(comp)}</b></div><div><small>Saldo por comprometer</small><b className="red">{fmt(sal)}</b></div></div>}
+      <div className="ds-cm">
+        <div className="ds-card"><h5>CLASIFICADOR</h5><table className="tbl sm"><thead><tr><th>Clasificador</th><th>Descripción</th><th className="r">Monto origen</th></tr></thead><tbody>{Object.keys(mm).map((k, i) => <tr key={k} className={i === 0 ? 'sel' : ''}><td className="mono">{k.split('|')[0]}</td><td>{clasNom(k.split('|')[0])}</td><td className="r">S/.{fmt(mm[k])}</td></tr>)}</tbody></table></div>
+        <div className="ds-card"><h5>META</h5><table className="tbl sm"><thead><tr><th>S. Func.</th><th>Descripción</th><th className="r">{a ? 'Saldo' : 'Monto'}</th></tr></thead><tbody>{Object.keys(mm).map(k => <tr key={k}><td className="mono">{k.split('|')[1]}</td><td>{metaNom(k.split('|')[1])}</td><td className="r">S/.{fmt(mm[k] - ((um as Record<string, number>)[k] || 0))}</td></tr>)}</tbody></table></div>
+      </div></> : <div className="ds-card">{a && a.mods.length ? <table className="tbl"><thead><tr><th>Nº</th><th>Tipo</th><th>Documento</th><th className="r">Monto</th><th>Estado</th><th /></tr></thead><tbody>{a.mods.map(md => <tr key={md.n}><td>{md.n}</td><td>{md.tipo}</td><td>{md.doc.cod} {md.doc.num}</td><td className="r">{fmt(sumI(md.items))}</td><td><Badge e={md.estado} /></td><td>{md.estado === 'REGISTRADO' && <><Btn sm icon="send" onClick={async () => { if (await confirmar('Enviar el registro', { icono: 'send' })) intentar(() => api.flujo.enviar({ k: 'cam', x: ej.id, id: a.id, n: md.n }), { AMPLIACION: 'La ampliación fue enviada.', REBAJA: 'La rebaja fue enviada.', ANULACION: 'La anulación fue enviada.' }[md.tipo]); }}>Enviar</Btn> <Btn sm v="g" onClick={() => intentar(() => api.flujo.descartar({ k: 'cam', x: ej.id, id: a.id, n: md.n }), 'Modificación descartada')}>Descartar</Btn></>}</td></tr>)}</tbody></table>
+        : <Vacio titulo="Sin modificaciones" texto="No se encontraron modificaciones." icono="folder" />}</div>}
+  </div>;
 }
-
 function FormCA({ ej, cert, ca, cerrar }: { ej: Ejecutora; cert: Certificado; ca?: CA; cerrar: () => void }) {
   const sal = certSaldo(ej, cert); if (ca) addMap(sal, ca.items, 1);
   const [d, setD] = useState({ tipoOp: ca?.tipoOp || 'N', doc: ca?.doc.cod || '', num: ca?.doc.num || '', fecha: ca?.doc.fecha || ej.fechaSis, pt: ca?.prov.tipo || 'RUC', pn: ca?.prov.num || '', justif: ca?.justif || '' });

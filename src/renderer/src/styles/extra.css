@@ -108,6 +108,56 @@ h3.sec { background: var(--siaf); }
 .btn-p { background: var(--sp-boton) !important; }
 .empty .eic { background: #dcdee1; color: #666; border-radius: 8px; }
 .empty h3 { font-weight: 700; }
+/* ---------- Árbol de secuencias de la lista (Compromiso › Devengado › Girado › Pagado) ---------- */
+.lp-limpiar { margin: 0 14px 6px; border: 0; background: #f1f2f4; border-radius: 6px; height: 28px; color: #555; font: inherit; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.lp-limpiar .ico { width: 13px; height: 13px; }
+.empty-sm { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 30px 16px; }
+.eic-sm { width: 44px; height: 44px; border-radius: 8px; background: #f1f2f4; display: grid; place-items: center; color: #555; }
+.arbol.abierto > .li { background: var(--rosa); color: var(--sp-rojo); }
+.arbol.abierto > .li .ic { background: #fff; color: var(--sp-rojo); }
+.arbol .chev { color: #555; display: flex; transition: transform .15s; }
+.arbol .chev.up { transform: rotate(180deg); color: var(--sp-rojo); }
+.rama { display: flex; align-items: center; gap: 8px; padding: 7px 14px 7px 28px; font-size: 12.5px; background: #fdf0f1; cursor: pointer; border-bottom: 1px solid #f7dfe2; color: #333; }
+.rama.n1 { padding-left: 46px; } .rama.n2 { padding-left: 64px; }
+.rama .r-t { flex: 1; } .rama .r-s { width: 44px; text-align: right; margin-right: 6px; }
+.rama.on { background: #f9d7dc; color: var(--sp-rojo); }
+.rama:hover:not(.on) { background: #fbe4e7; }
+.letra { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-weight: 800; border: 1.5px solid; flex: none; background: #fff; }
+.l-ok { color: #1f8a4c; border-color: #9ad5b0; background: #e3f5ea; } .l-reg { color: #2a6fd6; border-color: #a9c6f2; background: #e7f0ff; }
+.l-ver { color: #777; border-color: #ccc; } .l-pf { color: #b35400; border-color: #f2c48f; background: #fff1d6; } .l-rej { color: #c0283c; border-color: #f0a5b0; } .l-des { color: #999; border-color: #ddd; }
+
+/* ---------- Detalle del expediente como el SIAF-WEB ---------- */
+.det-siaf { display: flex; flex-direction: column; gap: 12px; }
+.ds-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ds-cab h2 { font-size: 21px; font-weight: 800; color: #222; margin: 0; }
+.btn-ins { border: 1px solid #ec9aa4; color: #d64a5c; background: #fff; border-radius: 6px; height: 34px; padding: 0 16px; font: inherit; font-weight: 600; cursor: pointer; }
+.btn-ins:hover:not([disabled]) { background: #fff4f5; }
+.btn-ins[disabled] { opacity: .5; cursor: not-allowed; }
+.ds-ent { display: grid; grid-template-columns: 1.6fr 1fr; gap: 2px 30px; background: #fff; border-radius: 8px; padding: 12px 16px; border: 1px solid var(--line); }
+.kv-f { display: grid; grid-template-columns: 150px 1fr; gap: 10px; padding: 3px 0; font-size: 13px; }
+.kv-f span { color: #666; } .kv-f b { font-weight: 500; color: #222; }
+.kv-f.full { grid-column: 1 / -1; grid-template-columns: 150px 1fr; margin-top: 6px; }
+.ds-barra { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.ds-sec { height: 32px; border: 1px solid #d9dde2; border-radius: 16px; padding: 0 12px; font: inherit; font-size: 13px; background: #fff; }
+.ds-tabs { flex: 1; display: flex; justify-content: center; gap: 22px; }
+.ds-tabs a { display: flex; align-items: center; gap: 6px; color: #aaa; font-size: 13.5px; padding: 6px 2px; cursor: pointer; border-bottom: 2px solid transparent; text-decoration: none; }
+.ds-tabs a.on { color: var(--sp-rojo); border-bottom-color: var(--sp-rojo); }
+.ds-tabs .ico { width: 14px; height: 14px; }
+.btn-env { height: 32px; border: 0; border-radius: 6px; background: var(--sp-boton); color: #fff; padding: 0 16px; font: inherit; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.btn-env[disabled] { background: #f4b4bb; cursor: not-allowed; }
+.btn-env .ico { width: 14px; height: 14px; }
+.ds-card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; }
+.ds-card h5 { margin: 4px 0 8px; font-size: 11.5px; font-weight: 700; color: #333; letter-spacing: .3px; }
+.ds-kv { display: grid; grid-template-columns: 1.3fr 1fr; gap: 6px 30px; }
+.st-pt { font-weight: 600; } .st-pt.ok { color: #1f8a4c; background: #e3f5ea; border-radius: 10px; padding: 1px 8px; }
+.ds-sumas { display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+.ds-sumas > div { text-align: center; padding: 10px; border-left: 1px solid var(--line); }
+.ds-sumas > div:first-child { border-left: 0; }
+.ds-sumas small { display: block; color: #777; font-size: 12px; } .ds-sumas b { font-size: 17px; color: #222; }
+.ds-sumas b.red { color: #d64a5c; }
+.ds-cm { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+.ds-cm .tbl tr.sel td { background: var(--rosa); color: var(--sp-rojo); }
+@media (max-width: 1100px) { .ds-ent, .ds-kv, .ds-cm { grid-template-columns: 1fr; } }
 .siaf-pl { letter-spacing: 2.4px; font-weight: 600; opacity: .85; margin-bottom: 1px; }
 
 /* ---------- Portada de la Plataforma SIAF-SP ---------- */
