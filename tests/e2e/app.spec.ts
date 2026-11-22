@@ -61,7 +61,7 @@ test('el trabajador entra con su usuario y ve el menú del SIAF-WEB, sin caso ca
   await expect(page.locator('.casebar')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Verificar' })).toHaveCount(0);
   await expect(page.locator('.menu .mitems a')).toHaveCount(22);
-  await expect(page.locator('.menu .mitems a').last()).toHaveText('Modificación de Solicitud de Viático y Encargo Interno');
+  await expect(page.locator('.menu .mitems a').last()).toHaveText('Certificación de Fase Pagado (Tipos de Pago Otros)');
   await page.locator('.msel select').selectOption('Consultas');
   await expect(page.locator('.menu .mitems a')).toHaveText(['Contratos', 'Asignación de Tesoro Público']);
   await page.locator('.msel select').selectOption('Reportes');

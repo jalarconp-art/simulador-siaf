@@ -36,8 +36,7 @@ type Grupo = 'Registro' | 'Consultas' | 'Reportes';
 export const PANTALLAS: Record<Pantalla, [string, Grupo, string]> = {
   cert: ['Certificación', 'Registro', 'Certificación'], ca: ['Compromiso Anual', 'Registro', 'Compromiso Anual'],
   cm: ['Registro SIAF - Compromiso Mensual', 'Registro', 'Registro SIAF - Compromiso Mensual'], dev: ['Registro SIAF - Devengado', 'Registro', 'Registro SIAF - Devengado'],
-  gir: ['Registro SIAF - Girado', 'Registro', 'Registro SIAF - Girado'],
-  pagotros: ['Certificación de Fase Pagado (Tipos de Pago Otros)', 'Registro', 'Certificación de fase pagado (Tipos de pago otros)'], mod: ['Modificación de Certificación y Compromiso Anual', 'Registro', 'Modificación de Certificación y Compromiso Anual'],
+  gir: ['Registro SIAF - Girado', 'Registro', 'Registro SIAF - Girado'], mod: ['Modificación de Certificación y Compromiso Anual', 'Registro', 'Modificación de Certificación y Compromiso Anual'],
   modexp: ['Modificación Expediente', 'Registro', 'Modificación Expediente'], det: ['Registro SIAF - Determinado', 'Registro', 'Registro SIAF - Determinado'],
   rec: ['Registro SIAF - Recaudado', 'Registro', 'Registro SIAF - Recaudado'], ren: ['Rendición', 'Registro', 'Rendición'], reasig: ['Reasignacion', 'Registro', 'Reasignación'],
   apcta: ['Solicitud de Apertura de Cuenta Bancaria', 'Registro', 'Solicitud de Apertura de Cuenta Bancaria'], ope: ['Beneficiario OPE', 'Registro', 'Beneficiario OPE'],
@@ -45,6 +44,7 @@ export const PANTALLAS: Record<Pantalla, [string, Grupo, string]> = {
   cci: ['Cuenta Interbancaria (CCI)', 'Registro', 'Cuenta Interbancaria (CCI)'], conv: ['Convenios', 'Registro', 'Convenios'], via: ['Viáticos y Encargos Internos', 'Registro', 'Viáticos y Encargos Internos'],
   dliq: ['Distribución de la Liquidación del Viático - Encargo Interno', 'Registro', 'Distribución de la Liquidación del Viático - Encargo Interno'],
   modvia: ['Modificación de Solicitud de Viático y Encargo Interno', 'Registro', 'Modificación de solicitud de viático y encargo interno'],
+  pagotros: ['Certificación de Fase Pagado (Tipos de Pago Otros)', 'Registro', 'Certificación de fase pagado (Tipos de pago otros)'],
   contratos: ['Contratos', 'Consultas', 'Contratos'], atp: ['Asignación de Tesoro Público', 'Consultas', 'Asignación de Tesoro Público'],
   repcca: ['Certificación y Compromiso Anual', 'Reportes', 'Certificación Y Compromiso Anual'], rep: ['Formatos SIAF', 'Reportes', 'Formatos SIAF'], transf: ['Transferencia Interbancaria', 'Reportes', 'Transferencia Interbancaria']
 };
