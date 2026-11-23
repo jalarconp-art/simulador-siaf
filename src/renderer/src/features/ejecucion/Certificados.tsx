@@ -81,6 +81,9 @@ function DetalleCert({ ej, c, setModo }: { ej: Ejecutora; c: Certificado; setMod
   </div>;
 }
 const rubrosCtx = (ej: Ejecutora): [string, string][] => [...new Set(CASOS[ej.id].pim.map(p => p[1]))].map(r => [r, rubroNom(r)]);
+/** Todas las fuentes y los rubros del clasificador vigente (no solo los del caso). */
+const FUENTES = CAT.fuentes.map(x => [x[0], x[1]] as [string, string]);
+const rubrosDeFuente = (ff: string): [string, string][] => CAT.rubros.filter(r => !ff || r[2] === ff).map(r => [r[0], r[1]] as [string, string]);
 type Fila = Item & { montoTxt: string };
 
 function FormCertificado({ ej, cert, cerrar }: { ej: Ejecutora; cert?: Certificado; cerrar: (id?: string) => void }) {
@@ -90,6 +93,8 @@ function FormCertificado({ ej, cert, cerrar }: { ej: Ejecutora; cert?: Certifica
   const [pca, setPca] = useState(false);
   const set = (k: keyof typeof d) => (v: string) => setD({ ...d, [k]: v });
   const pim = pimRows(ej, d.rubro);
+  const ff = ffDeRubro(d.rubro);
+  const cambiarFf = (v: string) => { const r = rubrosDeFuente(v)[0]; setD({ ...d, rubro: r ? r[0] : '' }); setItems([]); };
   const total = items.reduce((a, i) => a + num(i.montoTxt), 0);
   const agregar = async () => { const r = await seleccionarMeta(ej, d.rubro); if (!r) return; if (items.some(i => i.clas === r.clas && i.meta === r.meta)) { useApp.getState().avisar('El clasificador y la meta ya están registrados.', 'err'); return; } setItems([...items, { ...r, monto: 0, montoTxt: '0.00' }]); };
   const grabar = async () => {
@@ -102,8 +107,8 @@ function FormCertificado({ ej, cert, cerrar }: { ej: Ejecutora; cert?: Certifica
     <Card form><Encabezado titulo={cert ? 'MODIFICAR CERTIFICADO Nº ' + pad(cert.num, 5) : 'NUEVO CERTIFICADO'} acciones={<><Btn v="g" icon="x" onClick={() => cerrar()}>Cancelar</Btn><Btn v="p" icon="save" onClick={grabar}>Grabar</Btn></>} />
       <Grid>
         <Lista label="Documento" c={6} req value={d.doc} onChange={set('doc')} opciones={CAT.docsCert as [string, string][]} /><Campo label="Número" c={3} req={d.doc !== '000'} value={d.num} onChange={set('num')} /><Campo label="Fecha" c={3} req value={d.fecha} onChange={set('fecha')} ph="dd/mm/aaaa" />
-        <Lista label="Rubro" c={6} req value={d.rubro} onChange={v => { setD({ ...d, rubro: v }); setItems([]); }} opciones={rubrosCtx(ej)} /><Lista label="Tipo certificación" c={6} req value={d.tipoCert} onChange={set('tipoCert')} opciones={CAT.tiposCert} />
-        <RO label="Fuente de financiamiento" c={6} v={ffDeRubro(d.rubro) + ' - ' + ffNom(ffDeRubro(d.rubro))} /><Lista label="Dispositivo legal" c={6} value={d.disp} onChange={set('disp')} vacio="(ninguno)" opciones={['1-LEY Nº 31953 - INDECI', '2-LEY Nº 31953 - FEN']} />
+        <Lista label="Rubro" c={6} req value={d.rubro} onChange={v => { setD({ ...d, rubro: v }); setItems([]); }} opciones={rubrosDeFuente(ff)} hint={d.rubro && !pim.length ? 'Sin PIM en este rubro: regístrelo en Herramientas › Marco presupuestal.' : undefined} /><Lista label="Tipo certificación" c={6} req value={d.tipoCert} onChange={set('tipoCert')} opciones={CAT.tiposCert} />
+        <Lista label="Fuente de financiamiento" c={6} req value={ff} onChange={cambiarFf} opciones={FUENTES} /><Lista label="Dispositivo legal" c={6} value={d.disp} onChange={set('disp')} vacio="(ninguno)" opciones={['1-LEY Nº 31953 - INDECI', '2-LEY Nº 31953 - FEN']} />
         <RO label="Moneda" v="S/. - (NUEVO SOL)" /><RO label="Tipo cambio" v="1.0000000000" /><RO label="Monto" v={fmt(total)} />
         <Campo label="Justificación" c={12} req area rows={3} value={d.justif} onChange={set('justif')} hint={MSG_JUSTIF} />
       </Grid>
