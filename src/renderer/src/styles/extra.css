@@ -324,3 +324,9 @@ h4, .ds-card h5, .ch b, .card .ch { color: #212529 !important; font-size: 12px; 
 @media (max-width: 900px) { .wb-head { grid-template-columns: 56px 1fr; } .wb-txt { grid-column: 1 / -1; } }
 .sl-modo { margin: 14px 0 0; padding: 8px 10px; border-radius: 6px; background: #eef7fb; color: #33505c; font-size: 12.5px; line-height: 1.5; }
 .sl-modo a { color: #0090c2; cursor: pointer; text-decoration: underline; }
+
+/* Cabecera del MADAF / AERAF: usuario, «Cerrar sesión» y «Volver» bien visibles sobre el fondo azul */
+.ohd, .ghd { color: #fff !important; }
+.ohd .sm, .ghd .sm { color: #fff !important; opacity: 1 !important; font-size: 13px; font-weight: 500; }
+.ohd .btn, .ghd .btn { background: #fff !important; color: #1d3f73 !important; border: 1px solid #fff !important; opacity: 1 !important; font-weight: 600; padding: 6px 14px; }
+.ohd .btn:hover, .ghd .btn:hover { background: #e7f3f9 !important; color: #0b2f5c !important; }
