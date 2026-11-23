@@ -298,3 +298,27 @@ h4, .ds-card h5, .ch b, .card .ch { color: #212529 !important; font-size: 12px; 
 .mherr .m-caso { background: rgba(255,255,255,.14); }
 .mnota { font-size: 11px; color: rgba(255,255,255,.78); padding: 10px 8px 16px; margin: 0; line-height: 1.45; }
 @media (max-width: 1000px) { .wb-head { grid-template-columns: 1fr; } .wb-2 { grid-template-columns: 1fr; } }
+
+/* Bienvenida compacta: entra completa en la pantalla de una laptop (1366x768 o 1920x1080 al 125-150 %) */
+.welcome.wb { padding: clamp(10px, 2vh, 22px) clamp(14px, 3vw, 36px); }
+.wb-in { max-width: 1180px; }
+.wb-head { grid-template-columns: 64px minmax(220px, 1fr) 1.4fr; gap: 16px; padding: clamp(12px, 2.2vh, 20px) 22px !important; }
+.wb-av { width: 56px; height: 56px; }
+.wb-av .ico { width: 30px; height: 30px; }
+.wb-k { font-size: 12px; }
+.wb-hora { font-size: 13px; }
+.wb-who h2 { font-size: 17px !important; margin: 2px 0 0 !important; }
+.wb-who small { font-size: 12px; }
+.wb-txt { font-size: 13px; line-height: 1.55; }
+.wb-t { font-size: 14px !important; margin: clamp(10px, 2vh, 18px) 0 8px !important; }
+.wb-2, .wb-3 { gap: 14px; }
+.wb-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.wb-card { display: grid !important; grid-template-columns: 34px 1fr; grid-template-rows: auto auto; column-gap: 12px !important; row-gap: 2px !important; align-items: center; padding: clamp(10px, 1.8vh, 16px) 16px !important; }
+.wb-card .wb-ic { grid-row: 1 / 3; width: 34px; height: 34px; margin: 0; }
+.wb-card .wb-ic .ico { width: 24px; height: 24px; }
+.wb-card b { font-size: 14px !important; }
+.wb-card small { font-size: 12.5px !important; line-height: 1.4; }
+.wb-card.dis { display: flex !important; flex-direction: column; }
+.wb-pie { font-size: 12px; margin: clamp(10px, 2vh, 18px) 0 4px; }
+@media (max-height: 700px) { .wb-txt { display: none; } .wb-head { grid-template-columns: 56px 1fr; } }
+@media (max-width: 900px) { .wb-head { grid-template-columns: 56px 1fr; } .wb-txt { grid-column: 1 / -1; } }
