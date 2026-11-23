@@ -1,7 +1,7 @@
 {
   "name": "siaf-web-simulador",
   "productName": "SIAF-WEB Simulador",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Entorno de práctica de la Plataforma SIAF-SP con arquitectura por capas: dominio, servicios, SQLite y React",
   "author": "Gabinete de Contabilidad y Gestión Pública - UNA Puno",
   "license": "UNLICENSED",
