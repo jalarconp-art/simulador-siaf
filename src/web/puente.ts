@@ -20,6 +20,16 @@ import type { Backend } from './backend/tipos';
 const LECTURA = new Set(['sesion.actual', 'ejecutora.obtener', 'ejecutora.obtenerPublico', 'ejecutora.resumen', 'flujo.automatico', 'dnie.disponibles', 'dnie.sesion', 'aeraf.listar', 'entrega.generar', 'sistema.info', 'madaf.clave', 'dnie.ingresar', 'dnie.salir', 'dnie.reiniciarPin']);
 const SOLO_ESCRITORIO = 'Esta opción está disponible en la aplicación de escritorio.';
 
+/** Opciones del puente cuando corre dentro del escritorio conectado a la nube. */
+export interface OpcionesPuente {
+  /** Bytes del motor SQLite (en el escritorio se leen del disco). */
+  wasm?: () => Promise<Uint8Array>;
+  /** Puente nativo del escritorio para archivos, impresión y menú. */
+  delegado?: SiafPuente;
+  /** Cada cuántos milisegundos se traen de la nube los cambios hechos en otro equipo o navegador. */
+  refresco?: number;
+}
+
 export class PuenteWeb implements SiafPuente {
   readonly plataforma = 'web' as const;
   private nucleo!: Nucleo;
@@ -30,10 +40,17 @@ export class PuenteWeb implements SiafPuente {
   private ultimaAuditoria = 0;
   private temporizador: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private backend: Backend) { this.listo = this.iniciar(); }
+  constructor(private backend: Backend, private op: OpcionesPuente = {}) {
+    this.listo = this.iniciar();
+    const cada = op.refresco ?? 5000;
+    if (cada > 0 && typeof window !== 'undefined') {
+      setInterval(() => { if (document.visibilityState === 'visible') this.refrescar(); }, cada);
+      window.addEventListener('focus', () => this.refrescar());
+    }
+  }
 
   private async iniciar(): Promise<void> {
-    const bd = await BaseDatos.abrir({ locateFile: () => wasmUrl });
+    const bd = await BaseDatos.abrir(this.op.wasm ? { wasmBinary: (await this.op.wasm()).slice().buffer } : { locateFile: () => wasmUrl });
     this.nucleo = new Nucleo(bd);
     this.tabla = this.nucleo.operacionesComunes();
     this.nucleo.ctx.eventos.on('cambio', (d: EventoCambio) => {
@@ -93,6 +110,27 @@ export class PuenteWeb implements SiafPuente {
     };
     this.cola = this.cola.then(tarea, tarea);
     return this.cola;
+  }
+  /** Trae de la nube los cambios hechos con la misma cuenta en otro lugar (escritorio o navegador). */
+  private refrescando = false;
+  async refrescar(): Promise<void> {
+    await this.listo;
+    const s = this.ctx.sesion; if (!s || this.refrescando) return;
+    this.refrescando = true;
+    try {
+      await this.cola;
+      const cambiadas: string[] = [];
+      for (const caso of CTX_ORDER) {
+        const g = await this.backend.cargarEspacio(s.usuario.id, caso);
+        if (!g || this.ctx.sesion?.usuario.id !== s.usuario.id) continue;
+        const clave = claveDe(s.usuario.id, caso);
+        const local = this.ctx.ejecutoras.cargar(clave);
+        const nuevo = !local || (g.datos.tick || 0) > (local.tick || 0) ||
+          ((g.datos.tick || 0) === (local.tick || 0) && JSON.stringify(g.responsables || []) !== JSON.stringify(this.ctx.responsables.listar(clave)));
+        if (nuevo) { this.cargarEnMemoria(clave, g.datos, g.responsables); cambiadas.push(caso); }
+      }
+      cambiadas.forEach(c => this.oyentes.forEach(fn => fn({ ejecutora: c })));
+    } catch { /* sin conexión: se reintenta en el siguiente ciclo */ } finally { this.refrescando = false; }
   }
   private requerirAdmin(): Usuario { const u = this.ctx.sesion?.usuario; exigir(u, 'Debe iniciar sesión.'); exigir(esAdmin(u), 'Su perfil no tiene acceso a esta operación: corresponde al Administrador de usuarios.'); return u!; }
 
@@ -181,15 +219,23 @@ export class PuenteWeb implements SiafPuente {
     return r;
   }
   async google(): Promise<Resultado> {
-    try { await this.backend.google(); return { ok: true, data: null }; } catch (e) { return traducirError(e); }
+    try {
+      await this.listo;
+      await this.backend.google();
+      /* en la web la página se va a Google; en el escritorio vuelve aquí con la sesión ya abierta */
+      const u = await this.backend.sesionActual();
+      return { ok: true, data: u ? await this.abrirSesion(u) : null };
+    } catch (e) { return traducirError(e); }
   }
   async guardarTexto(nombre: string, contenido: string, _ext: string): Promise<Resultado<string>> {
+    if (this.op.delegado) return this.op.delegado.guardarTexto(nombre, contenido, _ext);
     const url = URL.createObjectURL(new Blob([contenido], { type: 'text/plain;charset=utf-8' }));
     const a = document.createElement('a'); a.href = url; a.download = nombre; document.body.appendChild(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
     return { ok: true, data: nombre + ' (carpeta de descargas)' };
   }
   abrirTexto(ext: string[]): Promise<Resultado<{ contenido: string; nombre: string }>> {
+    if (this.op.delegado) return this.op.delegado.abrirTexto(ext);
     return new Promise(res => {
       const i = document.createElement('input'); i.type = 'file'; i.accept = ext.map(e => '.' + e).join(',');
       i.onchange = async () => { const f = i.files?.[0]; res(f ? { ok: true, data: { contenido: await f.text(), nombre: f.name } } : { ok: false }); };
@@ -197,6 +243,7 @@ export class PuenteWeb implements SiafPuente {
     });
   }
   imprimir(html: string, titulo: string): Promise<{ ok: boolean }> {
+    if (this.op.delegado) return this.op.delegado.imprimir(html, titulo);
     return new Promise(res => {
       const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;width:0;height:0;border:0;right:0;bottom:0';
       document.body.appendChild(f);
@@ -205,6 +252,7 @@ export class PuenteWeb implements SiafPuente {
     });
   }
   async pdf(html: string, nombre: string): Promise<Resultado<string>> {
+    if (this.op.delegado) return this.op.delegado.pdf(html, nombre);
     await this.imprimir(html, nombre);
     return { ok: true, data: 'Elija «Guardar como PDF» en el cuadro de impresión.' };
   }
@@ -229,5 +277,5 @@ export class PuenteWeb implements SiafPuente {
     } catch (e) { const t = traducirError(e); this.avisarError(new Error(t.error)); return t; }
   }
   alCambiar(fn: (d: EventoCambio) => void): () => void { this.oyentes.add(fn); return () => { this.oyentes.delete(fn); }; }
-  alMenu(_fn: (cmd: string) => void): () => void { return () => undefined; }
+  alMenu(fn: (cmd: string) => void): () => void { return this.op.delegado ? this.op.delegado.alMenu(fn) : () => undefined; }
 }

@@ -1,4 +1,5 @@
 /* Panel del docente: aulas, estudiantes, entregas calificadas automáticamente y auditoría */
+import { siaf } from '@/puente';
 import { useEffect, useState } from 'react';
 import { useApp } from '../store';
 import { api } from '../api';
@@ -13,7 +14,7 @@ export function Docente() {
   const { sesion } = useApp();
   const [tab, setTab] = useState('trab');
   if (!esAdmin(sesion?.usuario)) return <><Topbar app="docente" /><div className="welcome"><Vacio titulo="Acceso restringido" texto="El panel requiere el perfil de Administrador de usuarios." icono="lock" /></div></>;
-  return <><Topbar app="docente" /><div className="docente"><div className="dc-head"><h2>Panel del administrador</h2><Tabs tabs={[['trab', 'Avance de los usuarios'], ...(window.siaf.plataforma === 'escritorio' ? [['aulas', 'Aulas y calificaciones'] as [string, string]] : []), ['aud', 'Auditoría del sistema']]} val={tab} set={setTab} /></div>{tab === 'trab' ? <Avance /> : tab === 'aulas' ? <Aulas /> : <Bitacora />}</div></>;
+  return <><Topbar app="docente" /><div className="docente"><div className="dc-head"><h2>Panel del administrador</h2><Tabs tabs={[['trab', 'Avance de los usuarios'], ...(siaf().plataforma === 'escritorio' ? [['aulas', 'Aulas y calificaciones'] as [string, string]] : []), ['aud', 'Auditoría del sistema']]} val={tab} set={setTab} /></div>{tab === 'trab' ? <Avance /> : tab === 'aulas' ? <Aulas /> : <Bitacora />}</div></>;
 }
 
 type Avance = Awaited<ReturnType<typeof api.progreso>>[number];

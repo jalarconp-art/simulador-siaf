@@ -46,3 +46,35 @@ export function iniciarSesionGoogle(clientId: string, secreto: string, espera = 
     setTimeout(() => { if (!terminado) { servidor.close(); rechazar(new Error('Se agotó el tiempo para iniciar sesión con Google.')); } }, espera);
   });
 }
+
+/* ---- Acceso con Google a través de Supabase (modo nube del escritorio) ----
+   Supabase devuelve ?code=... a http://127.0.0.1:<puerto>/; el renderer lo canjea (PKCE). */
+let pendiente: { servidor: http.Server; codigo: Promise<string> } | null = null;
+export function prepararRetornoNube(espera = 180000): Promise<string> {
+  if (pendiente) { pendiente.servidor.close(); pendiente = null; }
+  return new Promise((listo, fallo) => {
+    let resolver!: (c: string) => void, rechazar!: (e: Error) => void;
+    const codigo = new Promise<string>((a, b) => { resolver = a; rechazar = b; });
+    codigo.catch(() => undefined);
+    const servidor = http.createServer((req, res) => {
+      const url = new URL(req.url || '/', 'http://127.0.0.1');
+      if (url.pathname !== '/') { res.writeHead(404).end(); return; }
+      const c = url.searchParams.get('code'); const err = url.searchParams.get('error_description') || url.searchParams.get('error');
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }).end(PAGINA(c ? 'Acceso con Google completado.' : 'No se completó el acceso con Google.'));
+      servidor.close(); pendiente = null;
+      if (c) resolver(c); else rechazar(new Error(err ? 'Google/Supabase: ' + err : 'Se canceló el acceso con Google.'));
+    });
+    servidor.on('error', e => fallo(e));
+    servidor.listen(0, '127.0.0.1', () => {
+      pendiente = { servidor, codigo };
+      setTimeout(() => { if (pendiente?.servidor === servidor) { servidor.close(); pendiente = null; rechazar(new Error('Se agotó el tiempo de espera. Si el navegador abrió la página web del simulador en lugar de volver, el administrador debe agregar http://127.0.0.1:** en Supabase › Authentication › URL Configuration › Redirect URLs.')); } }, espera);
+      listo(`http://127.0.0.1:${(servidor.address() as { port: number }).port}/`);
+    });
+  });
+}
+export async function esperarCodigoNube(url: string): Promise<string> {
+  exigirPendiente();
+  await shell.openExternal(url);
+  return pendiente!.codigo;
+}
+function exigirPendiente(): void { if (!pendiente) throw new Error('Primero se debe preparar el retorno local.'); }

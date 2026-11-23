@@ -1,4 +1,5 @@
 /* Componente raíz: enrutamiento por aplicativo, eventos del proceso principal y comandos del menú nativo. */
+import { siaf } from '@/puente';
 import { useEffect } from 'react';
 import { useApp } from './store';
 import { api } from './api';
@@ -16,12 +17,12 @@ export function App() {
   const { app, sesion, ir, setSesion, recargar, ejecutoraId, avisar } = useApp();
   useEffect(() => {
     api.sesion().then(s => { if (s) { setSesion(s); ir('bienvenida'); } }).catch(() => undefined);
-    const off1 = window.siaf.alCambiar(d => {
+    const off1 = siaf().alCambiar(d => {
       const st = useApp.getState();
       if (d.ejecutora === st.ejecutoraId || !d.ejecutora) st.recargar();
       if (d.mensaje) st.avisar(d.mensaje.texto, d.mensaje.tipo || 'info');
     });
-    const off2 = window.siaf.alMenu(async cmd => {
+    const off2 = siaf().alMenu(async cmd => {
       const st = useApp.getState();
       st.dialogos.forEach(x => st.cerrarDialogo(x.id));
       if (cmd === 'inicio') st.ir(st.sesion ? 'bienvenida' : 'portal');

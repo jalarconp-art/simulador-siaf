@@ -1,6 +1,7 @@
 /* Portal de la Plataforma SIAF-SP (simulador): portada con los componentes del sistema integrado y,
    al elegir SIAF, la pantalla de inicio de sesión. Reproduce el recorrido real para familiarizarse con él;
    no usa el escudo ni el logotipo del Ministerio y siempre se identifica como simulador académico. */
+import { cambiarModo, modoDatos, siaf } from '@/puente';
 import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../store';
 import { api } from '../api';
@@ -87,7 +88,7 @@ function Acceso({ volver }: { volver: () => void }) {
   const [r, setR] = useState({ apellidos: '', nombres: '', dni: '', email: '', clave: '', clave2: '' });
   const [err, setErr] = useState(''); const [ocupado, setOcupado] = useState(false);
   const [google, setGoogle] = useState(false);
-  useEffect(() => { window.siaf.invoke('google.disponible').then(x => setGoogle(!!(x.ok && x.data))); }, []);
+  useEffect(() => { siaf().invoke('google.disponible').then(x => setGoogle(!!(x.ok && x.data))); }, []);
   useEffect(() => setErr(''), [modo]);
   const ok = (s: Sesion) => { setSesion(s); ir('bienvenida'); };
   const entrar = async () => {
@@ -102,7 +103,7 @@ function Acceso({ volver }: { volver: () => void }) {
   };
   const conGoogle = async () => {
     setErr(''); setOcupado(true);
-    try { const x = await window.siaf.google(); if (x.ok && x.data) ok(x.data as Sesion); else if (!x.ok) setErr(x.error || 'No se pudo iniciar sesión con Google.'); } finally { setOcupado(false); }
+    try { const x = await siaf().google(); if (x.ok && x.data) ok(x.data as Sesion); else if (!x.ok) setErr(x.error || 'No se pudo iniciar sesión con Google.'); } finally { setOcupado(false); }
   };
   const campo = (label: string, k: keyof typeof r, tipo = 'text', extra: Record<string, unknown> = {}) =>
     <div className="f"><label>{label}</label><input className="ctl lg" type={tipo} value={r[k]} onChange={e => setR({ ...r, [k]: e.target.value })} {...extra} /></div>;
@@ -121,12 +122,13 @@ function Acceso({ volver }: { volver: () => void }) {
       <div className="lg-card sl-form">
         {modo === 'login' ? <>
           <h2 className="sl-tit">Inicio de Sesión</h2>
-          <div className="f"><label>Usuario o email</label><input className="ctl lg" value={u} onChange={e => setU(e.target.value)} autoFocus /></div>
+          <div className="f"><label>{modoDatos() === 'local' ? 'Usuario o email' : 'Email'}</label><input className="ctl lg" value={u} onChange={e => setU(e.target.value)} autoFocus /></div>
           <div className="f"><label>Contraseña</label><input className="ctl lg" type="password" value={c} onChange={e => setC(e.target.value)} onKeyDown={e => e.key === 'Enter' && entrar()} /></div>
           <small className="err">{err}</small>
           <button className="btn sl-btn" disabled={ocupado} onClick={entrar}>{ocupado ? 'Ingresando...' : 'Iniciar sesión'}</button>
           {google && <><div className="lg-sep">o</div><button className="btn btn-google" disabled={ocupado} onClick={conGoogle}><GoogleG />Continuar con Google</button></>}
           <p className="sl-alt"><a onClick={() => setModo('registro')}>Crear una cuenta</a> · <a onClick={volver}>Volver a la Plataforma SIAF-SP</a></p>
+          <ModoDatos />
         </> : <>
           <h2 className="sl-tit">Crear cuenta</h2>
           <p className="muted">Recibirá un espacio propio con el Caso Práctico 1 cargado. El administrador le asignará su perfil.</p>
@@ -146,3 +148,12 @@ function Acceso({ volver }: { volver: () => void }) {
 }
 
 const GoogleG = () => <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6.1C12.4 13.6 17.7 9.5 24 9.5z" /><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z" /><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.8-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.8-6.1z" /><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.8 6.1C6.6 42.6 14.6 48 24 48z" /></svg>;
+
+/** Escritorio: indica dónde se guardan los datos y permite cambiar entre la nube (compartida con la web) y solo este equipo. */
+function ModoDatos() {
+  const m = modoDatos();
+  if (m === 'web') return null;
+  return <p className="sl-modo">{m === 'nube'
+    ? <><b>Conectado a la nube:</b> sus registros se comparten con la versión web (misma cuenta). <a onClick={() => cambiarModo('local')}>Trabajar sin conexión</a></>
+    : <><b>Sin conexión:</b> los datos quedan solo en este equipo. <a onClick={() => cambiarModo('nube')}>Conectarse a la nube</a></>}</p>;
+}

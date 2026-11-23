@@ -13,6 +13,11 @@ const puente: SiafPuente = {
   respaldoExportar: () => ipcRenderer.invoke('siaf:respaldoExportar'),
   respaldoImportar: () => ipcRenderer.invoke('siaf:respaldoImportar'),
   alCambiar: fn => { const h = (_e: unknown, d: Parameters<typeof fn>[0]) => fn(d); ipcRenderer.on('siaf:cambio', h); return () => ipcRenderer.removeListener('siaf:cambio', h); },
+  nube: {
+    wasm: () => ipcRenderer.invoke('siaf:wasm'),
+    oauthPreparar: () => ipcRenderer.invoke('siaf:oauthPreparar'),
+    oauthAbrir: url => ipcRenderer.invoke('siaf:oauthAbrir', url)
+  },
   alMenu: fn => { const h = (_e: unknown, c: string) => fn(c); ipcRenderer.on('siaf:menu', h); return () => ipcRenderer.removeListener('siaf:menu', h); }
 };
 contextBridge.exposeInMainWorld('siaf', puente);

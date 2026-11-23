@@ -1,5 +1,6 @@
 /* SIAF Operaciones en Línea › Administrador de usuarios: perfiles SIAF, opciones con Consulta/Operación,
    estado de la cuenta y configuración del acceso con Google. */
+import { siaf } from '@/puente';
 import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../store';
 import { api } from '../api';
@@ -9,7 +10,7 @@ import { Icon } from '../components/Icon';
 import type { Nivel, Opcion, Permisos, Rol, Usuario } from '@shared/types';
 import { OPCIONES, permisosDeRol, ROL_TXT, ROLES } from '@shared/permisos';
 
-const WEB = () => window.siaf.plataforma === 'web';
+const WEB = () => siaf().plataforma === 'web';
 
 export function Usuarios() {
   const { sesion, avisar, abrir } = useApp();

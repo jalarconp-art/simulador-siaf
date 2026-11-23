@@ -5,13 +5,13 @@ import initSqlJs, { type Database, type SqlValue } from 'sql.js';
 import { MIGRACIONES } from './schema';
 
 export type Fila = Record<string, SqlValue>;
-export interface OpcionesBD { datos?: Uint8Array | null; locateFile?: (archivo: string) => string; alPersistir?: (binario: Uint8Array) => void }
+export interface OpcionesBD { datos?: Uint8Array | null; locateFile?: (archivo: string) => string; wasmBinary?: ArrayBuffer; alPersistir?: (binario: Uint8Array) => void }
 
 export class BaseDatos {
   private constructor(private db: Database, private alPersistir?: (binario: Uint8Array) => void) {}
 
   static async abrir(o: OpcionesBD = {}): Promise<BaseDatos> {
-    const SQL = await initSqlJs(o.locateFile ? { locateFile: o.locateFile } : undefined);
+    const SQL = await initSqlJs(o.wasmBinary ? { wasmBinary: o.wasmBinary } : o.locateFile ? { locateFile: o.locateFile } : undefined);
     const bd = new BaseDatos(o.datos ? new SQL.Database(o.datos) : new SQL.Database(), o.alPersistir);
     bd.db.run('PRAGMA foreign_keys = ON;');
     bd.migrar();

@@ -1,4 +1,5 @@
 /* SIAF Operaciones en Línea: usuarios de operadores y aprobación de presupuesto (OPP) */
+import { siaf } from '@/puente';
 import { useEffect, useState } from 'react';
 import { useApp } from '../store';
 import { api } from '../api';
@@ -32,7 +33,7 @@ function Aprobaciones({ mods }: { mods: boolean }) {
   const [marca, setMarca] = useState<Record<string, 'a' | 'r' | undefined>>({});
   const cargar = () => api.ejecutora.obtener(x).then(setEj).catch(e => avisar(e.message, 'err'));
   useEffect(() => { cargar(); setMarca({}); }, [x]);
-  useEffect(() => window.siaf.alCambiar(() => cargar()), [x]);
+  useEffect(() => siaf().alCambiar(() => cargar()), [x]);
   if (!puede(sesion?.usuario, 'opp', 'C')) return <Card><Vacio titulo="Acceso restringido" texto="El Administrador de usuarios no le ha habilitado la opción «Módulo Presupuestal UE (aprobación OPP)»." icono="lock" /></Card>;
   const filas: { t: Target; cols: string[]; just: string }[] = [];
   const pend: string[][] = [];

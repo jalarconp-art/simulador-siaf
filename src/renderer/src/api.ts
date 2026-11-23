@@ -1,10 +1,11 @@
 /* Cliente de la API: envuelve el puente IPC y convierte los errores de negocio en excepciones. */
+import { siaf } from '@/puente';
 import type { Aula, Auditoria, Ejecutora, Entrega, Estudiante, Permisos, Responsable, Rol, Sesion, Target, Usuario } from '@shared/types';
 import type { CmdIn } from '@shared/comandos';
 
 export class ErrorApi extends Error {}
 async function llamar<T>(metodo: string, ...args: unknown[]): Promise<T> {
-  const r = await window.siaf.invoke(metodo, ...args);
+  const r = await siaf().invoke(metodo, ...args);
   if (!r.ok) throw new ErrorApi(r.error || 'Error desconocido');
   return r.data as T;
 }
@@ -71,11 +72,11 @@ export const api = {
   auditoria: (f: string, l = 500) => llamar<Auditoria[]>('auditoria.listar', f, l),
   info: () => llamar<{ version: number }>('sistema.info'),
   escritorio: {
-    guardarTexto: (n: string, c: string, ext: string) => window.siaf.guardarTexto(n, c, ext),
-    abrirTexto: (ext: string[]) => window.siaf.abrirTexto(ext),
-    imprimir: (h: string, t: string) => window.siaf.imprimir(h, t),
-    pdf: (h: string, n: string) => window.siaf.pdf(h, n),
-    respaldoExportar: () => window.siaf.respaldoExportar(),
-    respaldoImportar: () => window.siaf.respaldoImportar()
+    guardarTexto: (n: string, c: string, ext: string) => siaf().guardarTexto(n, c, ext),
+    abrirTexto: (ext: string[]) => siaf().abrirTexto(ext),
+    imprimir: (h: string, t: string) => siaf().imprimir(h, t),
+    pdf: (h: string, n: string) => siaf().pdf(h, n),
+    respaldoExportar: () => siaf().respaldoExportar(),
+    respaldoImportar: () => siaf().respaldoImportar()
   }
 };

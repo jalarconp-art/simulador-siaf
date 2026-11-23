@@ -3,7 +3,11 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": false,
@@ -12,7 +16,22 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "baseUrl": ".",
-    "paths": { "@shared/*": ["src/shared/*"], "@/*": ["src/renderer/src/*"] }
+    "paths": {
+      "@shared/*": [
+        "src/shared/*"
+      ],
+      "@/*": [
+        "src/renderer/src/*"
+      ]
+    },
+    "types": [
+      "vite/client"
+    ]
   },
-  "include": ["src/renderer/src/**/*", "src/shared/**/*", "src/preload/api.d.ts"]
+  "include": [
+    "src/renderer/src/**/*",
+    "src/shared/**/*",
+    "src/preload/api.d.ts",
+    "src/web/**/*"
+  ]
 }

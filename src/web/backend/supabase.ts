@@ -24,10 +24,16 @@ const traducir = (m: string): string => {
   return m;
 };
 
+/** Escritorio: el acceso con Google vuelve a un puerto local (navegador del sistema) en lugar de a la página web. */
+export interface OAuthLocal { preparar: () => Promise<string>; abrir: (url: string) => Promise<string> }
+const retornoWeb = () => (typeof location !== 'undefined' && /^https?:$/.test(location.protocol) ? location.origin : undefined);
+
 export class BackendSupabase implements Backend {
   readonly nombre = 'supabase' as const;
   private sb: SupabaseClient;
-  constructor(private url: string, private clave: string) { this.sb = createClient(url, clave, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }); }
+  constructor(private url: string, private clave: string, private oauth?: OAuthLocal) {
+    this.sb = createClient(url, clave, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: !oauth, ...(oauth ? { flowType: 'pkce' as const } : {}) } });
+  }
 
   private async perfil(id: string): Promise<Usuario> {
     /* el disparador crea el perfil al registrarse; se reintenta brevemente por si aún no está */
@@ -44,13 +50,13 @@ export class BackendSupabase implements Backend {
     return data.session ? this.perfil(data.session.user.id) : null;
   }
   async login(email: string, clave: string): Promise<Usuario> {
-    if (!email.includes('@')) throw new Error('En la versión web ingrese con su correo electrónico.');
+    if (!email.includes('@')) throw new Error('Con la cuenta en la nube (compartida con la web) ingrese con su correo electrónico. Ej.: admin@siafsimulador.pe');
     const { data, error } = await this.sb.auth.signInWithPassword({ email: email.trim(), password: clave });
     if (error) throw new Error(traducir(error.message));
     return this.perfil(data.user.id);
   }
   async registrar(d: DatosRegistro): Promise<Usuario | null> {
-    const { data, error } = await this.sb.auth.signUp({ email: d.email.trim().toLowerCase(), password: d.clave, options: { data: { dni: d.dni.trim(), apellidos: d.apellidos.trim(), nombres: d.nombres.trim() }, emailRedirectTo: location.origin } });
+    const { data, error } = await this.sb.auth.signUp({ email: d.email.trim().toLowerCase(), password: d.clave, options: { data: { dni: d.dni.trim(), apellidos: d.apellidos.trim(), nombres: d.nombres.trim() }, emailRedirectTo: retornoWeb() } });
     if (error) throw new Error(traducir(error.message));
     if (!data.session || !data.user) return null;
     return this.perfil(data.user.id);
@@ -60,6 +66,15 @@ export class BackendSupabase implements Backend {
     try { const r = await fetch(this.url + '/auth/v1/settings', { headers: { apikey: this.clave } }); return !!(await r.json())?.external?.google; } catch { return false; }
   }
   async google(): Promise<void> {
+    if (this.oauth) {
+      const redirectTo = await this.oauth.preparar();
+      const { data, error } = await this.sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo, skipBrowserRedirect: true, queryParams: { prompt: 'select_account' } } });
+      if (error || !data.url) throw new Error(traducir(error?.message || 'No se pudo iniciar el acceso con Google.'));
+      const codigo = await this.oauth.abrir(data.url);
+      const r = await this.sb.auth.exchangeCodeForSession(codigo);
+      if (r.error) throw new Error(traducir(r.error.message));
+      return;
+    }
     const { error } = await this.sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin, queryParams: { prompt: 'select_account' } } });
     if (error) throw new Error(traducir(error.message));
   }

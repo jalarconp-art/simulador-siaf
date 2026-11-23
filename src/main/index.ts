@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { Aplicacion } from './app';
 import { escribirLog } from './log';
-import { iniciarSesionGoogle } from './google';
+import { esperarCodigoNube, iniciarSesionGoogle, prepararRetornoNube } from './google';
 import { documentoImpresion } from '@shared/impresion';
 
 let win: BrowserWindow | null = null;
@@ -44,8 +44,10 @@ function crearVentana(): void {
   win.once('ready-to-show', () => { if (!process.env.SIAF_SMOKE) win!.maximize(); win!.show(); });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', e => { if (!process.env.ELECTRON_RENDERER_URL) e.preventDefault(); });
-  if (process.env.ELECTRON_RENDERER_URL) win.loadURL(process.env.ELECTRON_RENDERER_URL);
-  else win.loadFile(path.join(__dirname, '../renderer/index.html'));
+  /* las pruebas automáticas (SIAF_DB) usan siempre la base local del equipo */
+  const modo = process.env.SIAF_DB ? 'local' : process.env.SIAF_MODO;
+  if (process.env.ELECTRON_RENDERER_URL) win.loadURL(process.env.ELECTRON_RENDERER_URL + (modo ? '?modo=' + modo : ''));
+  else win.loadFile(path.join(__dirname, '../renderer/index.html'), modo ? { query: { modo } } : undefined);
   if (process.env.SIAF_SMOKE) prueba();
 }
 
@@ -76,6 +78,9 @@ function registrarIPC(): void {
     try { const id = await iniciarSesionGoogle(g.clientId, g.secreto); win?.focus(); return siaf.invocarFn(() => siaf.loginGoogle(id)); }
     catch (e) { win?.focus(); return { ok: false, error: (e as Error).message }; }
   });
+  ipcMain.handle('siaf:wasm', () => new Uint8Array(fs.readFileSync(path.join(wasmDir(), 'sql-wasm.wasm'))));
+  ipcMain.handle('siaf:oauthPreparar', () => prepararRetornoNube());
+  ipcMain.handle('siaf:oauthAbrir', async (_e, url: string) => { if (!url.startsWith('https://')) throw new Error('Dirección no válida.'); try { return await esperarCodigoNube(url); } finally { win?.focus(); } });
   ipcMain.handle('siaf:guardarTexto', async (_e, nombre: string, contenido: string, ext: string) => {
     const r = await dialog.showSaveDialog(win!, { defaultPath: path.join(app.getPath('documents'), nombre), filters: [{ name: ext.toUpperCase(), extensions: [ext] }] });
     if (r.canceled || !r.filePath) return { ok: false };

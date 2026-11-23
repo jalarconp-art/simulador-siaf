@@ -1,4 +1,5 @@
 /* MADAF: autorización de certificaciones, compromisos anuales, devengados y giros con clave dinámica */
+import { siaf } from '@/puente';
 import { useEffect, useState } from 'react';
 import { useApp } from '../store';
 import { api } from '../api';
@@ -40,7 +41,7 @@ export function Madaf() {
   const cargar = () => api.ejecutora.obtenerPublico(x).then(setEj).catch(e => avisar(e.message, 'err'));
   useEffect(() => { api.dnie.sesion('madaf').then(setDnie); }, []);
   useEffect(() => { if (dnie) cargar(); setSelec({}); }, [x, dnie, tipo, est]);
-  useEffect(() => window.siaf.alCambiar(() => { if (dnie) cargar(); }), [x, dnie]);
+  useEffect(() => siaf().alCambiar(() => { if (dnie) cargar(); }), [x, dnie]);
   if (!dnie) return <PantallaRequisitos app="madaf" alEntrar={() => api.dnie.sesion('madaf').then(setDnie)} />;
   const lista = ej ? filas(ej, tipo, est) : [];
   const autorizar = async (aprobar: boolean) => {
