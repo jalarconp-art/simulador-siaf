@@ -54,10 +54,21 @@ export function expSaldos(e: Expediente): SaldosExp {
     tot: { C: mapTot(C), D: mapTot(Dn), R: mapTot(Rl), G: mapTot(Gl), T6: mapTot(T6), P: mapTot(Pl) }
   };
 }
+/** Marco presupuestal: el de la entidad de apoyo (Caso Práctico 1) más el PIM que registra el propio usuario. */
+export function pimBase(ej: Ejecutora): [string, string, string, number][] {
+  const propios = (ej.aux || []).filter(a => a.tipo === 'pim' && a.estado === 'APROBADO').map(a => [a.datos.meta, (a.datos.rubro || '').slice(0, 2), a.datos.clas, Number(a.datos.pim) || 0] as [string, string, string, number]);
+  const m = new Map<string, [string, string, string, number]>();
+  [...CASOS[ej.id].pim, ...propios].forEach(p => { const k = p[0] + '|' + p[1] + '|' + p[2]; const x = m.get(k); if (x) x[3] = r2(x[3] + p[3]); else m.set(k, [p[0], p[1], p[2], p[3]]); });
+  return [...m.values()];
+}
+/** Nombre de la meta: de la entidad de apoyo o del PIM registrado por el usuario. */
+export function metaNombre(ej: Ejecutora, meta: string): string {
+  return CASOS[ej.id].metas.find(x => x.sec === meta)?.nombre || (ej.aux || []).find(a => a.tipo === 'pim' && a.datos.meta === meta && a.estado !== 'DESCARTADO')?.datos.metaNom || '';
+}
 export interface FilaPim { meta: string; rubro: string; clas: string; pim: number; cert: number; saldo: number }
 export function pimRows(ej: Ejecutora, rubro?: string): FilaPim[] {
   const d = CASOS[ej.id];
-  return d.pim.filter(p => !rubro || p[1] === rubro).map(p => {
+  return pimBase(ej).filter(p => !rubro || p[1] === rubro).map(p => {
     const k = p[2] + '|' + p[0]; let cert = 0;
     ej.certs.filter(c => c.rubro === p[1]).forEach(c => { cert += certMap(c, true)[k] || 0; });
     return { meta: p[0], rubro: p[1], clas: p[2], pim: p[3], cert: r2(cert), saldo: r2(p[3] - cert) };

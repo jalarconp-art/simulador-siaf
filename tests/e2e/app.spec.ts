@@ -57,15 +57,15 @@ test('portada de la plataforma, clic en SIAF y credenciales inválidas', async (
 test('el trabajador entra con su usuario y ve el menú del SIAF-WEB, sin caso cargado', async () => {
   await login('RU20261', 'Quispe2026');
   await expect(page.locator('.wcard h2')).toContainText('ROSA ELENA');
-  await page.locator('.tile', { hasText: 'Ejecucion Presupuestal' }).click();
+  await page.locator('.tile', { hasText: 'EJECUCIÓN PRESUPUESTAL' }).click();
   await expect(page.locator('.casebar')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Verificar' })).toHaveCount(0);
-  await expect(page.locator('.menu .mitems a')).toHaveCount(22);
-  await expect(page.locator('.menu .mitems a').last()).toHaveText('Certificación de Fase Pagado (Tipos de Pago Otros)');
+  await expect(page.locator('.menu .mitems > a')).toHaveCount(22);
+  await expect(page.locator('.menu .mitems > a').last()).toHaveText('Certificación de Fase Pagado (Tipos de Pago Otros)');
   await page.locator('.msel select').selectOption('Consultas');
-  await expect(page.locator('.menu .mitems a')).toHaveText(['Contratos', 'Asignación de Tesoro Público']);
+  await expect(page.locator('.menu .mitems > a')).toHaveText(['Contratos', 'Asignación de Tesoro Público']);
   await page.locator('.msel select').selectOption('Reportes');
-  await expect(page.locator('.menu .mitems a')).toHaveText(['Certificación y Compromiso Anual', 'Formatos SIAF', 'Transferencia Interbancaria']);
+  await expect(page.locator('.menu .mitems > a')).toHaveText(['Certificación y Compromiso Anual', 'Formatos SIAF', 'Transferencia Interbancaria']);
   await page.locator('.menu a', { hasText: 'Certificación y Compromiso Anual' }).click();
   await expect(page.locator('.detail h3')).toHaveText('Generar Reporte');
   await page.locator('.msel select').selectOption('Registro');
@@ -120,7 +120,7 @@ test('certificación en práctica: grabar, enviar, aprobar en la OPP y firmar en
 
 test('otro trabajador no ve lo registrado por el primero', async () => {
   await salir(); await login('RU20262', 'Condori2026');
-  await page.locator('.tile', { hasText: 'Ejecucion Presupuestal' }).click();
+  await page.locator('.tile', { hasText: 'EJECUCIÓN PRESUPUESTAL' }).click();
   await expect(page.locator('.lp-list')).toContainText('No se encontraron');
 });
 

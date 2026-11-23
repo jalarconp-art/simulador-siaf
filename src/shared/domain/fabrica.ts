@@ -2,7 +2,7 @@
 import type { CertSec, Certificado, CompromisoAnual, Doc, Ejecutora, Estado, Expediente, ExpSec, Ingreso, IngSec, Item, ModoEjecutora, TipoSecCert } from '../types';
 import { CASOS } from '../casos';
 import { CAT } from '../catalogo';
-import { anioDe, ffDeRubro, mesDe, r2, uid } from '../util';
+import { anioDe, ffDeRubro, hoy, mesDe, r2, uid } from '../util';
 
 const T = (ej: Ejecutora): number => ++ej.tick;
 export const items = (arr: [string, string, number][]): Item[] => arr.map(a => ({ clas: a[0], meta: a[1], monto: r2(a[2]) }));
@@ -10,7 +10,7 @@ export const docDe = (d: string[]): Doc => d.length === 4 ? { cod: d[0], serie: 
 
 export function ejecutoraVacia(id: string, modo: ModoEjecutora = 'vacio'): Ejecutora {
   const d = CASOS[id];
-  return { id, modo, sub: d.subcasos[0].id, fechaSis: d.subcasos[0].ops[0].fecha, seq: { ...d.seq }, tick: 0, certs: [], cas: [], exps: [], ings: [], mods: [], provs: d.proveedores.map(p => ({ tipo: p[0], num: p[1], nom: p[2] })), aux: [] };
+  return { id, modo, sub: d.subcasos[0].id, fechaSis: modo === 'solucion' ? d.subcasos[0].ops[0].fecha : hoy(), seq: { ...d.seq }, tick: 0, certs: [], cas: [], exps: [], ings: [], mods: [], provs: d.proveedores.map(p => ({ tipo: p[0], num: p[1], nom: p[2] })), aux: [] };
 }
 function correlativo(ej: Ejecutora, k: string, forzado?: number): number {
   if (forzado) { if (forzado > (ej.seq[k] || 0)) ej.seq[k] = forzado; return forzado; }

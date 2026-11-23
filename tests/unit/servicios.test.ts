@@ -327,3 +327,22 @@ describe('Certificación de fase pagado (tipos de pago otros)', () => {
     expect(falla('gir.pagado', { ejecutora: 'cp1', expId: e.id, sec: g.sec, fechaPago: '30/10/2022', docPago: 'X' })).toContain('ya tiene pagado');
   });
 });
+describe('Operaciones propias (sin el Caso Práctico 1)', () => {
+  it('registra su propio PIM y certifica una operación distinta del caso', () => {
+    entrar('RU20263');
+    expect(falla('aux.grabar', { ejecutora: 'cp1', tipo: 'pim', datos: { meta: '12', metaNom: 'Gestion', rubro: '00 - RECURSOS ORDINARIOS', clas: '2.3.1.5.1.2', pim: '5000' } })).toContain('4 dígitos');
+    const p = ok('aux.grabar', { ejecutora: 'cp1', tipo: 'pim', datos: { meta: '0012', metaNom: 'Gestion administrativa', rubro: '00 - RECURSOS ORDINARIOS', clas: '2.3.1.5.1.2', pim: '5000' } });
+    expect(falla('cert.grabar', { ejecutora: 'cp1', doc: { cod: '086', num: 'MEMO 01-2026', fecha: '05/03/2026' }, rubro: '00', tipoCert: 'OTROS', justif: 'COMPRA DE UTILES DE OFICINA', items: [{ clas: '2.3.1.5.1.2', meta: '0012', monto: 1200 }] })).toContain('PIM');
+    ok('aux.enviar', 'cp1', 'pim', p.id);
+    ok('ejecutora.fecha', 'cp1', '05/03/2026');
+    const c = ok('cert.grabar', { ejecutora: 'cp1', doc: { cod: '086', num: 'MEMO 01-2026', fecha: '05/03/2026' }, rubro: '00', tipoCert: 'OTROS', justif: 'COMPRA DE UTILES DE OFICINA', items: [{ clas: '2.3.1.5.1.2', meta: '0012', monto: 1200 }] });
+    expect(c.num).toBeGreaterThan(0);
+    expect(falla('cert.grabar', { ejecutora: 'cp1', doc: { cod: '086', num: 'MEMO 02-2026', fecha: '05/03/2026' }, rubro: '00', tipoCert: 'OTROS', justif: 'OTRA COMPRA', items: [{ clas: '2.3.1.5.1.2', meta: '0012', monto: 4000 }] })).toContain('excede');
+  });
+  it('registra tickets de soporte sin permisos especiales', () => {
+    entrar('RU20262');
+    const t = ok('aux.grabar', { ejecutora: 'cp1', tipo: 'ticket', datos: { cargo: 'Especialista', dni: '42637482', correo: 'c@x.pe', asunto: 'No puedo enviar', detalle: 'Detalle del problema' } });
+    ok('aux.enviar', 'cp1', 'ticket', t.id);
+    expect(ej().aux!.find(a => a.tipo === 'ticket')!.datos.correo).toBe('c@x.pe');
+  });
+});

@@ -10,6 +10,7 @@ import { Icon } from '../../components/Icon';
 import { Letra } from './Expedientes';
 import type { Certificado, Ejecutora, Item } from '@shared/types';
 import { CASOS } from '@shared/casos';
+import { metaNombre } from '@shared/domain/saldos';
 import { CAT, MESES } from '@shared/catalogo';
 import { certComprometido, certEstado, certMap, certSaldo, pimRows } from '@shared/domain/saldos';
 import { MSG_JUSTIF } from '@shared/domain/reglas';
@@ -71,7 +72,7 @@ function DetalleCert({ ej, c, setModo }: { ej: Ejecutora; c: Certificado; setMod
         <div className="ds-card"><h5>CLASIFICADOR</h5><table className="tbl sm"><thead><tr><th>Clasificador</th><th>Descripción</th><th className="r">Saldo PCA</th><th className="r">Monto origen</th></tr></thead><tbody>
           {[...new Set(Object.keys(m).map(k => k.split('|')[0]))].map((cl, i) => <tr key={cl} className={i === 0 ? 'sel' : ''}><td className="mono">{cl}</td><td>{clasNom(cl)}</td><td className="r">{fmt(pim.filter(p => p.clas === cl).reduce((a, p) => a + p.saldo, 0))}</td><td className="r">S/.{fmt(Object.keys(m).filter(k => k.startsWith(cl + '|')).reduce((a, k) => a + m[k], 0))}</td></tr>)}</tbody></table></div>
         <div className="ds-card"><h5>META</h5><table className="tbl sm"><thead><tr><th>S. Func.</th><th>Descripción</th><th className="r">Monto</th></tr></thead><tbody>
-          {Object.keys(m).map(k => { const me = k.split('|')[1]; return <tr key={k}><td className="mono">{me}</td><td>{CASOS[ej.id].metas.find(x => x.sec === me)?.nombre || ''}</td><td className="r">S/.{fmt(m[k])}</td></tr>; })}</tbody></table></div>
+          {Object.keys(m).map(k => { const me = k.split('|')[1]; return <tr key={k}><td className="mono">{me}</td><td>{metaNombre(ej, me)}</td><td className="r">S/.{fmt(m[k])}</td></tr>; })}</tbody></table></div>
       </div>
       <p className="muted sm">Fecha de registro {c.fecha} · Aprobación {s0.fechaAprob || '—'} · Autorizado por {s0.aut || '—'}</p>
     </> : <div className="ds-card">{mods.length ? <table className="tbl"><thead><tr><th>Sec.</th><th>Tipo</th><th>Documento</th><th>Fecha</th><th className="r">Monto</th><th>Estado</th><th /></tr></thead><tbody>

@@ -38,7 +38,7 @@ function PanelReporte({ titulo, children, limpiar, buscar, excel, pdf }: { titul
 }
 function Periodo({ mes, setMes }: { mes: string; setMes: (v: string) => void }) {
   const { ejecutoraId } = useApp();
-  return <div className="lp-per sola"><span><Icon n="list" /> Periodo</span><select value={mes} onChange={e => setMes(e.target.value)}><option value="TODOS">TODOS</option>{MESES.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}</select><select disabled><option>{CASOS[ejecutoraId].anio}</option></select></div>;
+  return <div className="lp-per sola"><span><Icon n="list" /> Periodo</span><select value={mes} onChange={e => setMes(e.target.value)}><option value="TODOS">TODOS</option>{MESES.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}</select><select disabled><option>{(useApp.getState().ej?.fechaSis || '').slice(6) || CASOS[ejecutoraId].anio}</option></select></div>;
 }
 
 /* ------------------------- Consultas › Contratos ------------------------- */

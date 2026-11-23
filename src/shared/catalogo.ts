@@ -62,9 +62,18 @@ export const CAT = {
    "18",
    "CANON Y SOBRECANON, REGALIAS, RENTA DE ADUANAS Y PARTICIPACIONES",
    "5"
+  ],
+  [
+   "15",
+   "FONDO DE COMPENSACION REGIONAL - FONCOR",
+   "5"
   ]
  ],
  "docs": [
+  [
+   "000",
+   "SIN DOCUMENTO"
+  ],
   [
    "001",
    "FACTURA"
@@ -78,12 +87,52 @@ export const CAT = {
    "LIQUIDACION DE COMPRA"
   ],
   [
+   "005",
+   "BOLETO DE CIAS DE AVIACION"
+  ],
+  [
+   "006",
+   "CARTA DE PORTE AEREO"
+  ],
+  [
    "008",
    "NOTA DE DEBITO"
   ],
   [
+   "009",
+   "COMPROBANTE DE PAGO (EMITIDO POR LA UE)"
+  ],
+  [
+   "011",
+   "POLIZA DE BOLSA DE VALORES"
+  ],
+  [
+   "012",
+   "TICKETS O CINTAS CON IGV"
+  ],
+  [
+   "013",
+   "DOCUMENTOS BANCA Y SEGUROS"
+  ],
+  [
+   "014",
+   "RECIBO SERVICIOS PUBLICOS"
+  ],
+  [
    "016",
    "CONVENIO SUSCRITO"
+  ],
+  [
+   "018",
+   "DOCUMENTOS EMITIDOS POR LAS AFPS"
+  ],
+  [
+   "021",
+   "CONOCIMIENTO DE EMBARQUE"
+  ],
+  [
+   "023",
+   "POLIZA DE ADJUDICACION"
   ],
   [
    "024",
@@ -94,12 +143,24 @@ export const CAT = {
    "NOTA DE CARGO"
   ],
   [
+   "027",
+   "RECIBO POR HONORARIOS PROFESIONALES"
+  ],
+  [
    "031",
    "ORDEN DE COMPRA - GUIA DE INTERNAMIENTO"
   ],
   [
    "032",
    "ORDEN DE SERVICIO"
+  ],
+  [
+   "033",
+   "OTROS"
+  ],
+  [
+   "034",
+   "PAPELETA DE DEPOSITO"
   ],
   [
    "036",
@@ -118,12 +179,48 @@ export const CAT = {
    "RENDICION DE CUENTA"
   ],
   [
+   "049",
+   "RESOLUCION ADMINISTRATIVA"
+  ],
+  [
+   "050",
+   "POLIZA DUI DE IMPORTACION"
+  ],
+  [
+   "051",
+   "POLIZA DUI FRACCIONADA"
+  ],
+  [
+   "052",
+   "DECLARACION SIMPLIFICADA"
+  ],
+  [
+   "053",
+   "DECLARACION DE MENSAJERIA Y COURIER"
+  ],
+  [
+   "054",
+   "LIQUIDACION DE COBRANZA"
+  ],
+  [
    "059",
    "CONTRATO COMPRA-VENTA"
   ],
   [
    "060",
    "CONTRATO SUSCRITO (VARIOS)"
+  ],
+  [
+   "065",
+   "CHEQUE GIRADO"
+  ],
+  [
+   "066",
+   "RECIBO DE INGRESOS"
+  ],
+  [
+   "068",
+   "CARTA ORDEN"
   ],
   [
    "070",
@@ -134,8 +231,68 @@ export const CAT = {
    "LIQUIDACION DE CONTRATO"
   ],
   [
+   "076",
+   "CERTIFICADO DE REEMBOLSO"
+  ],
+  [
+   "079",
+   "COMPROBANTE DE RETENCION - IGV RETENIDO"
+  ],
+  [
+   "081",
+   "TRANSFERENCIA A CUENTA DE TERCEROS (CCI)"
+  ],
+  [
+   "082",
+   "OPERACIONES SIN CHEQUE"
+  ],
+  [
+   "084",
+   "CARTA ORDEN ELECTRONICA"
+  ],
+  [
+   "086",
+   "MEMORANDUM"
+  ],
+  [
+   "089",
+   "TRANSFERENCIAS A OTRAS CUENTAS"
+  ],
+  [
+   "091",
+   "COMPROBANTES DE NO DOMICILIADO"
+  ],
+  [
+   "097",
+   "NOTA DE CREDITO EMITIDA POR NO DOMICILIADOS"
+  ],
+  [
+   "098",
+   "NOTA DE DEBITO EMITIDA POR NO DOMICILIADOS"
+  ],
+  [
+   "099",
+   "PAPELETA DE DEPOSITO (T6)"
+  ],
+  [
+   "117",
+   "ACTA DE EMBARGO"
+  ],
+  [
+   "118",
+   "CARTA ORDEN - FIDEICOMISO"
+  ],
+  [
+   "121",
+   "DOCUMENTO INTERNO PARA ANULACION"
+  ],
+  [
    "132",
    "SEGUROS Y AUTOSEGUROS MEDICOS"
+  ],
+  [
+   "137",
+   "NOTA DE ABONO (VIRTUAL)"
   ],
   [
    "230",
@@ -264,12 +421,28 @@ export const CAT = {
    "GASTO - FONDO FIJO PARA CAJA CHICA (APERTURA Y/O AMPLIACION)"
   ],
   [
+   "CA",
+   "CONTRATO ADELANTO"
+  ],
+  [
+   "CL",
+   "CONTRATO LIQUIDACION"
+  ],
+  [
+   "CP",
+   "CONTRATO PAGOS A CUENTA"
+  ],
+  [
    "E",
    "GASTO - ENCARGO"
   ],
   [
    "EO",
    "ENCARGO OTORGADO"
+  ],
+  [
+   "F",
+   "GASTO FONDO PARA PAGOS EN EFECTIVO (APERTURA O AMPLIACION)"
   ],
   [
    "N",
@@ -286,6 +459,26 @@ export const CAT = {
   [
    "RC",
    "GASTO - FONDO CAJA CHICA (RENDICION Y REEMBOLSO)"
+  ],
+  [
+   "RF",
+   "GASTO FONDO PARA PAGOS EN EFECTIVO (RENDICION Y REEMBOLSO)"
+  ],
+  [
+   "S",
+   "GASTO SIN CLASIFICADOR"
+  ],
+  [
+   "SD",
+   "SERVICIO DE LA DEUDA"
+  ],
+  [
+   "SU",
+   "GASTO SUBSIDIO"
+  ],
+  [
+   "TC",
+   "TRANSFERENCIA ENTRE CUENTAS BANCARIAS"
   ],
   [
    "OTRO",
@@ -433,6 +626,7 @@ export const CAT = {
  ],
  "tiposRecurso": {
   "13": "D - DONACIONES Y TRANSFERENCIAS",
+  "15": "G - FONDO DE COMPENSACION REGIONAL - FONCOR",
   "18": "C - CANON Y SOBRECANON, REGALIAS, RENTA DE ADUANAS Y PARTICIPACIONES",
   "19": "O - OPERACIONES OFICIALES DE CREDITO",
   "00": "R - RECURSOS ORDINARIOS",
@@ -470,8 +664,8 @@ export const CAT = {
  "justifOk": "Caracteres permitidos en la justificación: letras, números, espacios y ( / ) ( . ) ( \\ ) ( Ñ ) ( $ ) ( % ) ( Nº ) ( ; ) ( , ) ( : ) ( á é í ó ú ) ( ) y guion.",
  "fuente": {
   "ff": "Clasificador de Fuentes de Financiamiento y Rubros (MEF-DGPP). Arbitrios = tasas → rubro 09.",
-  "docs": "Directiva 0001-2024-EF/50.01, art. 14.3; Manuales SIAF-WEB (001, 243); Manual de Usuario Fondos de Garantía, Multas y Análogas en Plataforma Web (MEF-OGTI, 2024).",
-  "tiposOp": "Plataforma SIAF-WEB, lista «Tipo de operación» del compromiso anual.",
+  "docs": "Tabla de Operaciones SIAF (MEF); Manual de Usuario Fondos de Garantía, Multas y Análogas en Plataforma Web (MEF-OGTI, 2024); pantallas del SIAF-WEB.",
+  "tiposOp": "Tabla de Operaciones SIAF (MEF): tipos de operación del ciclo de gasto e ingreso.",
   "estados": "Plataforma SIAF-WEB y MADAF.",
   "cuentas": "Plan Contable Gubernamental (MEF-DGCP); Módulo Contable SIAF-SP.",
   "uit": "UIT: D.S. N.° 301-2025-EF. Tope por pago: Directiva N.° 003-2024-EF/52.06, art. 5.1 e) (20 % de la UIT).",
@@ -489,6 +683,32 @@ export const CAT = {
   [
    "243",
    "NOTA DE PAGO"
+  ]
+ ],
+ "tiposOpIng": [
+  [
+   "Y",
+   "INGRESOS OPERACIONES VARIAS"
+  ],
+  [
+   "YF",
+   "TRANSFERENCIA FINANCIERA RECIBIDA"
+  ],
+  [
+   "YG",
+   "INGRESOS SIN CLASIFICADOR"
+  ],
+  [
+   "YT",
+   "INGRESOS TRANSFERENCIA"
+  ],
+  [
+   "YV",
+   "IGV - REBAJA INGRESO POR PAGO A SUNAT"
+  ],
+  [
+   "TF",
+   "TRANSFERENCIA FINANCIERA OTORGADA"
   ]
  ]
 };

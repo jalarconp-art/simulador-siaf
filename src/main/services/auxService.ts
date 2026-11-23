@@ -11,18 +11,18 @@ export class AuxService {
 
   grabar(c: { ejecutora: string; tipo: string; id?: string; datos: Record<string, string> }): { id: string; num: number } {
     const def = AUX_POR_K[c.tipo]; exigir(def, 'Opción no válida.');
-    this.ctx.requerirPermiso(def.opcion);
+    if (def.opcion) this.ctx.requerirPermiso(def.opcion); else this.ctx.requerirSesion();
     const datos: Record<string, string> = {};
     def.campos.forEach(f => {
       let v = String(c.datos[f.k] ?? '').trim();
-      if (f.tipo !== 'area' && f.k !== 'email') v = v.toUpperCase();
+      if (f.tipo !== 'area' && f.k !== 'email' && f.k !== 'correo') v = v.toUpperCase();
       if (f.req) exigir(v, `Ingrese «${f.t}».`);
       if (v && f.tipo === 'fecha') exigir(okDate(v), `«${f.t}»: use el formato dd/mm/aaaa.`);
       if (v && f.tipo === 'monto') { const n = num(v); exigir(n > 0, `«${f.t}» debe ser mayor a cero.`); v = n.toFixed(2); }
       if (v && f.tipo === 'numero') exigir(/^\d+$/.test(v), `«${f.t}» debe ser numérico.`);
       if (v && f.tipo === 'lista' && f.opciones) exigir(f.opciones.includes(v), `Seleccione «${f.t}».`);
       if (v && f.patron) exigir(new RegExp(f.patron[0]).test(v), f.patron[1]);
-      if (v && f.k === 'email') exigir(/^\S+@\S+\.\S+$/.test(v), 'Ingrese un correo electrónico válido.');
+      if (v && (f.k === 'email' || f.k === 'correo')) exigir(/^\S+@\S+\.\S+$/.test(v), 'Ingrese un correo electrónico válido.');
       if (f.max) exigir(v.length <= f.max, `«${f.t}» admite como máximo ${f.max} caracteres.`);
       datos[f.k] = v;
     });
@@ -46,7 +46,7 @@ export class AuxService {
   descartar(x: string, tipo: string, id: string): void { this.cambiar(x, tipo, id, 'DESCARTADO', 'descartar'); }
   private cambiar(x: string, tipo: string, id: string, estado: 'APROBADO' | 'DESCARTADO', accion: string): void {
     const def = AUX_POR_K[tipo]; exigir(def, 'Opción no válida.');
-    this.ctx.requerirPermiso(def.opcion);
+    if (def.opcion) this.ctx.requerirPermiso(def.opcion); else this.ctx.requerirSesion();
     this.ctx.operar(x, 'aux.' + accion, ej => {
       const r = (ej.aux || []).find(z => z.id === id && z.tipo === tipo); exigir(r, 'Registro no encontrado.');
       exigir(r!.estado === 'REGISTRADO', 'Solo se envía o descarta un registro en estado REGISTRADO.');

@@ -6,6 +6,7 @@ import { Btn, Campo, Grid, Lista, RO } from './ui';
 import { Icon } from './Icon';
 import type { Ejecutora, Item, Persona } from '@shared/types';
 import { CASOS } from '@shared/casos';
+import { metaNombre } from '@shared/domain/saldos';
 import { pimRows } from '@shared/domain/saldos';
 import { CLAS_I, clasNom, fmt, num, r2 } from '@shared/util';
 
@@ -50,7 +51,7 @@ function SelMeta({ ej, rubro, cerrar, res }: { ej: Ejecutora; rubro: string; cer
   const [clas, setClas] = useState(clases[0] || ''); const [meta, setMeta] = useState('');
   const lv = clas.split('.');
   const nivel = (n: number) => lv.slice(0, n).join('.');
-  const metaNom = (m: string) => CASOS[ej.id].metas.find(x => x.sec === m)?.nombre || '';
+  const metaNom = (m: string) => metaNombre(ej, m);
   return <><h3>Seleccionador de Meta</h3><p className="muted sm">Solo se muestran las metas con PCA priorizada (rubro {rubro}).</p>
     <div className="two"><table className="tbl hov"><thead><tr><th>Clasificador</th><th className="r">Saldo PCA priorizado</th></tr></thead><tbody>{clases.map(c => <tr key={c} className={c === clas ? 'sel' : ''} onClick={() => { setClas(c); setMeta(''); }}><td className="mono">{c}</td><td className="r">{fmt(filas.filter(f => f.clas === c).reduce((a, f) => a + f.saldo, 0))}</td></tr>)}</tbody></table>
       <table className="tbl hov"><thead><tr><th /><th>S. Func.</th><th>Meta</th><th className="r">Saldo PIM</th></tr></thead><tbody>{filas.filter(f => f.clas === clas).map(f => <tr key={f.meta} className={f.meta === meta ? 'sel' : ''} onClick={() => setMeta(f.meta)}><td><input type="checkbox" readOnly checked={f.meta === meta} /></td><td className="mono">{f.meta}</td><td>{metaNom(f.meta)}</td><td className="r">{fmt(f.saldo)}</td></tr>)}</tbody></table></div>

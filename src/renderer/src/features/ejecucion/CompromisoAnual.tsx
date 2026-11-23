@@ -9,6 +9,7 @@ import { seleccionarProveedor } from '../../components/Selectores';
 import { Icon } from '../../components/Icon';
 import { Letra } from './Expedientes';
 import { CASOS } from '@shared/casos';
+import { metaNombre } from '@shared/domain/saldos';
 import type { Certificado, CompromisoAnual as CA, Ejecutora, Item } from '@shared/types';
 import { CAT } from '@shared/catalogo';
 import { caMap, caMonto, caSaldo, caUsado, certComprometido, certEstado, certMap, certSaldo, vivo } from '@shared/domain/saldos';
@@ -52,7 +53,7 @@ function DetalleCA({ ej, c, setModo }: { ej: Ejecutora; c: Certificado; setModo:
   const kv = (k: string, v: string, full?: boolean) => <div className={'kv-f' + (full ? ' full' : '')}><span>{k}:</span><b>{v || '-'}</b></div>;
   const reg = a?.estado === 'REGISTRADO', apr = a?.estado === 'APROBADO';
   const mm = a ? caMap(a) : certMap(c, true), um = a ? caUsado(ej, a) : {};
-  const metaNom = (me: string) => CASOS[ej.id].metas.find(x => x.sec === me)?.nombre || '';
+  const metaNom = (me: string) => metaNombre(ej, me);
   return <div className="det-siaf">
     <div className="ds-cab"><h2>CERTIFICADO Nº {pad(c.num, 5)}</h2><button className="btn-ins" disabled={sal <= 0} onClick={() => setModo({ t: 'nuevo', certId: c.id })}>Insertar Compromiso</button></div>
     <div className="ds-barra">

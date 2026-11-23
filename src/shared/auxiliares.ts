@@ -8,7 +8,7 @@ export interface CampoAux {
   opciones?: string[]; req?: boolean; c?: number; max?: number; patron?: [string, string]; def?: string;
 }
 export interface DefAux {
-  k: string; menu: string; titulo: string; plural: string; buscar: string; opcion: Opcion;
+  k: string; menu: string; titulo: string; plural: string; buscar: string; opcion?: Opcion;
   /** «busqueda»: el panel izquierdo es un formulario de búsqueda, como en «Solicitud de Apertura de Cuenta Bancaria» */
   modo?: 'lista' | 'busqueda';
   campos: CampoAux[]; filtros?: string[]; lista: [string, string]; vacio: [string, string]; nota?: string;
@@ -96,7 +96,19 @@ export const AUX: DefAux[] = [
       { k: 'dato', t: 'Dato a modificar', tipo: 'lista', req: true, c: 6, opciones: ['Fecha de salida', 'Fecha de retorno', 'Destino', 'Monto', 'Motivo de la comisión'] }, { k: 'debe', t: 'Debe decir', req: true, c: 6 },
       { k: 'justif', t: 'Justificación', tipo: 'area', req: true, c: 12 }],
     filtros: ['tipoSolicitud'],
-    lista: ['dato', 'solicitud'], vacio: ['Detalle de la modificación', 'Para poder visualizar el detalle, Usted debe seleccionar una modificación de la lista izquierda'] }
+    lista: ['dato', 'solicitud'], vacio: ['Detalle de la modificación', 'Para poder visualizar el detalle, Usted debe seleccionar una modificación de la lista izquierda'] },
+  { k: 'pim', menu: 'Marco presupuestal (PIM)', titulo: 'Marco presupuestal (PIM)', plural: 'metas / clasificadores', buscar: 'Buscar meta o clasificador', opcion: 'cert',
+    campos: [
+      { k: 'meta', t: 'Meta (secuencia funcional)', req: true, c: 3, max: 4, patron: ['^\\d{4}$', 'La meta tiene 4 dígitos (ej. 0001).'] }, { k: 'metaNom', t: 'Nombre de la meta / finalidad', req: true, c: 9 },
+      { k: 'rubro', t: 'Rubro', tipo: 'lista', req: true, c: 6, opciones: RUBROS }, { k: 'clas', t: 'Clasificador de gasto', req: true, c: 3, patron: ['^2(\\.\\d+){4,5}$', 'Clasificador de gasto inválido (ej. 2.3.1.5.1.2).'] }, { k: 'pim', t: 'PIM S/', tipo: 'monto', req: true, c: 3 }],
+    lista: ['clas', 'meta'], vacio: ['Marco presupuestal', 'Registre el PIM por meta, rubro y clasificador para certificar sus propias operaciones. Al enviarlo queda disponible en el Seleccionador de Meta.'],
+    nota: 'El PIM aprobado (enviado) se suma al marco presupuestal de la unidad ejecutora: aparece en el Seleccionador de Meta de la certificación y en la Asignación de Tesoro Público.' },
+  { k: 'ticket', menu: 'Tickets de soporte', titulo: 'Ticket de soporte', plural: 'tickets', buscar: 'Buscar ticket',
+    campos: [
+      { k: 'cargo', t: 'Cargo', req: true, c: 8 }, { k: 'dni', t: 'Número DNI', req: true, c: 4, patron: ['^\\d{8}$', 'El DNI tiene 8 dígitos.'] },
+      { k: 'telefono', t: 'Teléfono', c: 4 }, { k: 'anexo', t: 'Anexo (opcional)', c: 2 }, { k: 'celular', t: 'Celular (opcional)', c: 6 }, { k: 'correo', t: 'Correo', req: true, c: 12 },
+      { k: 'asunto', t: 'Asunto', req: true, c: 12 }, { k: 'detalle', t: 'Detalle', tipo: 'area', req: true, c: 12 }],
+    lista: ['asunto', 'correo'], vacio: ['Tickets de soporte', 'Registre su consulta para la mesa de ayuda.'] },
 ];
 export const AUX_POR_K: Record<string, DefAux> = Object.fromEntries(AUX.map(d => [d.k, d]));
 export const AYUDA_TEXTO = MOTIVO;

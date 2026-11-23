@@ -14,6 +14,7 @@ export function menuUsuario(): void {
   st.abrir(cerrar => <div className="umenu">
     {item('user', 'Mi perfil', perfil, cerrar)}
     {item('key', 'Cambiar contraseña', cambiarClave, cerrar)}
+    {item('card', 'Tickets de soporte', () => { import('./Inicio').then(m => m.abrirTickets()); }, cerrar)}
     {item('swap', 'Cambiar de ejecutora', cambiarEjecutora, cerrar)}
     {item('upload', 'Generar archivo de entrega', exportarEntrega, cerrar)}
     {item('download', 'Exportar copia de seguridad', exportarRespaldo, cerrar)}

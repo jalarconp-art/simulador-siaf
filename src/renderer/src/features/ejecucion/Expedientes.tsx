@@ -9,6 +9,7 @@ import { generacionOperaciones, seleccionarProveedor } from '../../components/Se
 import { Icon } from '../../components/Icon';
 import type { CompromisoAnual, Comprobante, Ejecutora, Expediente, ExpSec, Item } from '@shared/types';
 import { CASOS } from '@shared/casos';
+import { metaNombre } from '@shared/domain/saldos';
 import { CAT } from '@shared/catalogo';
 import { caMonto, caSaldo, esEncargo, expSaldos, secMap } from '@shared/domain/saldos';
 import { addMap, clasNom, docNom, ffNom, fmt, mapToItems, mapTot, num, pad, r2, rubroNom, sumI, tipoOpNom, type Mapa } from '@shared/util';
@@ -19,7 +20,7 @@ interface CabCM { modalidad: string; tipoProc: string; faseContr: string; expEnc
 const FASE = (s: ExpSec) => s.fase === 'C' ? (sumI(s.items) < 0 ? 'REBAJA DE COMPROMISO' : 'COMPROMISO MENSUAL') : s.fase === 'D' ? (s.rend ? 'DEVENGADO - RENDICIÓN' : 'DEVENGADO') : s.fase === 'G' ? 'GIRADO' : s.fase === 'P' ? 'PAGADO' : 'DEVOLUCIÓN T-6';
 const CUENTAS: Record<string, string> = { '00': 'CUT - CUENTA PRINCIPAL DEL TESORO PÚBLICO (RECURSOS ORDINARIOS)', '09': 'CTA. CTE. RDR - BANCO DE LA NACIÓN', '18': 'CUT - RECURSOS DETERMINADOS: CANON Y SOBRECANON', '07': 'CTA. CTE. FONCOMUN - BANCO DE LA NACIÓN', '08': 'CTA. CTE. IMPUESTOS MUNICIPALES - BANCO DE LA NACIÓN', '04': 'CTA. CTE. CONTRIBUCIONES A FONDOS', '13': 'CTA. CTE. DONACIONES Y TRANSFERENCIAS', '19': 'CTA. CTE. ROOC' };
 const TIT: Record<PExp, [string, string]> = { cm: ['Compromiso Mensual', 'Insertar Compromiso'], dev: ['Devengado', 'Insertar Devengado'], gir: ['Girado', 'Insertar Girado'], t6: ['Papeleta T-6', 'Registrar Papeleta T-6'] };
-const metaNom = (ej: Ejecutora, m: string) => CASOS[ej.id].metas.find(x => x.sec === m)?.nombre || '';
+const metaNom = (ej: Ejecutora, m: string) => metaNombre(ej, m);
 const filasDe = (m: Mapa, actuales: Item[] = []) => mapToItems(m).filter(i => i.monto > 0).map(i => ({ clas: i.clas, meta: i.meta, origen: i.monto, monto: actuales.find(x => x.clas === i.clas && x.meta === i.meta)?.monto }));
 
 /** Secuencias que muestra cada opción del menú, como en el SIAF-WEB (árbol Compromiso › Devengado › Girado › Pagado). */

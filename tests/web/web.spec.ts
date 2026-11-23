@@ -36,8 +36,8 @@ test.beforeAll(async ({ browser }) => {
 test('ingreso con correo y menú del SIAF-WEB', async () => {
   await login('rquispe@regionpuno.gob.pe', 'Quispe2026');
   await expect(page.locator('.wcard h2')).toContainText('ROSA ELENA');
-  await page.locator('.tile', { hasText: 'Ejecucion Presupuestal' }).click();
-  await expect(page.locator('.menu .mitems a')).toHaveCount(22);
+  await page.locator('.tile', { hasText: 'EJECUCIÓN PRESUPUESTAL' }).click();
+  await expect(page.locator('.menu .mitems > a')).toHaveCount(22);
 });
 
 test('práctica: certificado, aprobación OPP y firma MADAF; los datos persisten al recargar', async () => {
@@ -80,14 +80,14 @@ test('práctica: certificado, aprobación OPP y firma MADAF; los datos persisten
 
   await page.reload();
   await expect(page.locator('.wcard h2')).toContainText('ROSA ELENA');
-  await page.locator('.tile', { hasText: 'Ejecucion Presupuestal' }).click();
+  await page.locator('.tile', { hasText: 'EJECUCIÓN PRESUPUESTAL' }).click();
   await page.locator('.lp-list .li').first().click();
   await expect(page.locator('.det-siaf .ds-kv')).toContainText('APROBADO');
 });
 
 test('otro trabajador no ve lo registrado por el primero', async () => {
   await salir(); await login('RU20262', 'Condori2026');
-  await page.locator('.tile', { hasText: 'Ejecucion Presupuestal' }).click();
+  await page.locator('.tile', { hasText: 'EJECUCIÓN PRESUPUESTAL' }).click();
   await expect(page.locator('.lp-list')).toContainText('No se encontraron');
 });
 
@@ -99,7 +99,7 @@ test('registro de cuenta nueva con correo', async () => {
 
 test('el administrador quita una opción y el usuario deja de verla', async () => {
   await salir(); await login('admin@siafsimulador.pe', 'Admin2026');
-  await page.locator('.tile', { hasText: 'SIAF Operaciones en Línea' }).click();
+  await page.locator('.tile', { hasText: 'OPERACIONES EN LÍNEA' }).click();
   await expect(page.locator('.crumbs')).toContainText('Administrador de usuarios');
   await page.locator('tbody tr', { hasText: 'RU20262' }).click();
   await page.locator('.perm-tbl tr', { hasText: 'Certificación' }).locator('input').first().uncheck();
@@ -109,7 +109,7 @@ test('el administrador quita una opción y el usuario deja de verla', async () =
   await expect(page.locator('tbody').first()).toContainText('elena.mamani@correo.pe');
   await expect(page.locator('tbody').first()).toContainText('RU20261');
   await salir(); await login('RU20262', 'Condori2026');
-  await page.locator('.tile', { hasText: 'Ejecucion Presupuestal' }).click();
+  await page.locator('.tile', { hasText: 'EJECUCIÓN PRESUPUESTAL' }).click();
   await page.locator('.msel select').selectOption('Registro');
   await expect(page.locator('.menu')).toContainText('Compromiso Anual');
   await expect(page.locator('.menu a', { hasText: /^Certificación$/ })).toHaveCount(0);

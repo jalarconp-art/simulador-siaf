@@ -268,3 +268,33 @@ h4, .ds-card h5, .ch b, .card .ch { color: #212529 !important; font-size: 12px; 
 .empty h3 { font-size: 17px; color: #212529; } .empty p { color: #6c757d; font-size: 13px; max-width: 300px; }
 .tabs a { font-weight: 500; font-size: 13px; }
 .note { font-size: 12.5px; }
+
+/* ---------- Bienvenida como el SIAF-WEB ---------- */
+.wb { background: #fff; }
+.wb-in { max-width: 1430px; margin: 0 auto; }
+.wb-head { display: grid !important; grid-template-columns: 110px 1fr 1fr; align-items: center; gap: 20px; max-width: none !important; padding: 36px 40px !important; border: 1px solid #e3e6ea !important; border-radius: 6px !important; }
+.wb-av { width: 86px; height: 86px; border-radius: 50%; background: #e7f3f9; color: #0090c2; display: grid; place-items: center; }
+.wb-av .ico { width: 46px; height: 46px; }
+.wb-who { display: flex; flex-direction: column; gap: 3px; }
+.wb-k { color: #e8402f; font-weight: 700; font-size: 14px; letter-spacing: .3px; }
+.wb-hora { font-size: 17px; color: #333; }
+.wb-who h2 { font-size: 22px !important; font-weight: 500 !important; margin: 4px 0 0 !important; color: #212529 !important; }
+.wb-txt { color: #555; font-size: 15px; line-height: 1.75; margin: 0; }
+.wb-t { text-transform: none !important; font-size: 16px !important; font-weight: 600 !important; letter-spacing: 0 !important; margin: 36px 0 14px !important; color: #222 !important; }
+.wb-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.wb-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.wb-card { width: 100%; min-width: 0 !important; max-width: none !important; flex: none !important; text-align: left; font: inherit; background: #fff !important; border: 1px solid #e3e6ea !important; border-radius: 6px !important; padding: 34px 24px 24px !important; box-shadow: none !important; gap: 6px !important; cursor: pointer; }
+.wb-card:hover { border-color: #f2a3ad !important; box-shadow: 0 6px 18px rgba(0,0,0,.06) !important; transform: none !important; }
+.wb-card b { color: #e8402f !important; font-size: 17px !important; font-weight: 700; letter-spacing: .2px; }
+.wb-card small { color: #666 !important; font-size: 15px !important; line-height: 1.6; }
+.wb-card.dis { cursor: default; opacity: .55; }
+.wb-ic { width: 42px; height: 42px; display: grid; place-items: center; color: #0090c2; margin-bottom: 12px; }
+.wb-ic .ico { width: 30px; height: 30px; stroke-width: 1.7; }
+.wb-pie { color: #8a8f96; font-size: 14px; margin: 40px 0 10px; }
+.tk .fgrid { margin-bottom: 6px; }
+.mherr { margin-top: 18px; border-top: 1px solid rgba(255,255,255,.25); padding-top: 6px; }
+.mherr .mgrp { padding: 8px 8px 4px; font-size: 10.5px; letter-spacing: 1px; opacity: .85; color: #fff; }
+.mherr a { font-weight: 500 !important; }
+.mherr .m-caso { background: rgba(255,255,255,.14); }
+.mnota { font-size: 11px; color: rgba(255,255,255,.78); padding: 10px 8px 16px; margin: 0; line-height: 1.45; }
+@media (max-width: 1000px) { .wb-head { grid-template-columns: 1fr; } .wb-2 { grid-template-columns: 1fr; } }
