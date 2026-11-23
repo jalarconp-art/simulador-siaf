@@ -64,9 +64,9 @@ export const CAT = {
    "5"
   ],
   [
-   "15",
-   "FONDO DE COMPENSACION REGIONAL - FONCOR",
-   "5"
+   "88",
+   "NO PRESUPUESTAL",
+   "1"
   ]
  ],
  "docs": [
@@ -375,6 +375,14 @@ export const CAT = {
  ],
  "docsIng": [
   [
+   "137",
+   "NOTA DE ABONO (VIRTUAL)"
+  ],
+  [
+   "000",
+   "SIN DOCUMENTO"
+  ],
+  [
    "RI",
    "RECIBO DE INGRESO / RECIBO DE CAJA"
   ],
@@ -626,9 +634,9 @@ export const CAT = {
  ],
  "tiposRecurso": {
   "13": "D - DONACIONES Y TRANSFERENCIAS",
-  "15": "G - FONDO DE COMPENSACION REGIONAL - FONCOR",
   "18": "C - CANON Y SOBRECANON, REGALIAS, RENTA DE ADUANAS Y PARTICIPACIONES",
   "19": "O - OPERACIONES OFICIALES DE CREDITO",
+  "88": "A - SUBCUENTA - EJECUCION DE GARANTIAS, PENALIDADES Y OTROS",
   "00": "R - RECURSOS ORDINARIOS",
   "09": "7 - SUB CUENTA - RECURSOS DIRECTAMENTE RECAUDADOS",
   "07": "F - FONDO DE COMPENSACION MUNICIPAL",
@@ -663,7 +671,7 @@ export const CAT = {
  ],
  "justifOk": "Caracteres permitidos en la justificación: letras, números, espacios y ( / ) ( . ) ( \\ ) ( Ñ ) ( $ ) ( % ) ( Nº ) ( ; ) ( , ) ( : ) ( á é í ó ú ) ( ) y guion.",
  "fuente": {
-  "ff": "Clasificador de Fuentes de Financiamiento y Rubros (MEF-DGPP). Arbitrios = tasas → rubro 09.",
+  "ff": "Clasificador de Fuentes de Financiamiento y Rubros (MEF-DGPP): 5 fuentes y 8 rubros presupuestarios. Rubro 88 No presupuestal según pantallas del SIAF-WEB. Arbitrios = tasas → rubro 09.",
   "docs": "Tabla de Operaciones SIAF (MEF); Manual de Usuario Fondos de Garantía, Multas y Análogas en Plataforma Web (MEF-OGTI, 2024); pantallas del SIAF-WEB.",
   "tiposOp": "Tabla de Operaciones SIAF (MEF): tipos de operación del ciclo de gasto e ingreso.",
   "estados": "Plataforma SIAF-WEB y MADAF.",
@@ -710,6 +718,11 @@ export const CAT = {
    "TF",
    "TRANSFERENCIA FINANCIERA OTORGADA"
   ]
+ ],
+ "tiposRecursoOtros": [
+  "0 - RECURSOS ORDINARIOS",
+  "18 - SUBCUENTA - TRANSFERENCIAS FINANCIERAS",
+  "A - SUBCUENTA - EJECUCION DE GARANTIAS, PENALIDADES Y OTROS"
  ]
 };
 
