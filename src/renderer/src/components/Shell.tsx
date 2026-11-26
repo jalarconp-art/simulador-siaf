@@ -26,7 +26,7 @@ export function Topbar({ app }: { app: AppId }) {
     <div className="logo" onClick={() => ir('bienvenida')}><Logo simulador={false} plataforma /></div>
     <div className="mods"><small>MÓDULOS</small>
       <select value={app} onChange={e => ir(e.target.value as AppId)}>
-        <option value="ejecucion">Ejecucion Presupuestal</option><option value="opl">SIAF Operaciones en Línea</option>
+        <option value="ejecucion">Modulo administrativo</option><option value="opl">SIAF Operaciones en Línea</option>
         <option value="aeraf">AERAF</option><option value="madaf">MADAF</option>
         {esAdmin(u) && <option value="docente">Panel del administrador</option>}
         <option value="bienvenida">Inicio</option>

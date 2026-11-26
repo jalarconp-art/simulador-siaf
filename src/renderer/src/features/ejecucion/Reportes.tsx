@@ -28,7 +28,7 @@ function NotaCert({ ej, c }: { ej: Ejecutora; c: Certificado }) {
       <tr><td><b>PLIEGO</b></td><td>: {e.pliego} {e.pliegoNom}</td><td><b>UNIDAD EJECUTORA</b></td><td>: {e.ue} {e.ueNom} ({e.secEjec})</td></tr>
       <tr><td><b>MES</b></td><td>: {MESES[c.mes - 1]}</td><td><b>TIPO CERTIFICACIÓN</b></td><td>: {c.tipoCert}</td></tr>
       <tr><td><b>FECHA DE DOCUMENTO</b></td><td>: {c.doc.fecha}</td><td><b>TIPO DOCUMENTO</b></td><td>: {docNom(c.doc.cod)}</td></tr>
-      <tr><td><b>N° DE DOCUMENTO</b></td><td>: {c.doc.num}</td><td><b>DISPOSITIVO LEGAL</b></td><td>: {c.disp || '-'}</td></tr></tbody></table>
+      <tr><td><b>N° DE DOCUMENTO</b></td><td>: {c.doc.num}</td><td><b>DISPOSITIVO LEGAL</b></td><td>: {c.disp || '0-OTROS'}</td></tr></tbody></table>
     <p><b>JUSTIFICACIÓN :</b> {c.justif}</p><h4 className="pt">DETALLE DEL GASTO</h4>
     <table className="pdet"><thead><tr><th>SECUENCIA / PRG PROD/PRY ACT/AI/OBR FN DIVF GRPF / META FF RB CGTT G SG SGD ESP SPPD</th><th className="r">MONTO</th></tr></thead><tbody>
       {c.secs.filter(s => vivo(s.estado)).map(s => { const sg = s.tipo === 'REBAJA' || s.tipo === 'ANULACION' ? -1 : 1; const metas = [...new Set(s.items.map(i => i.meta))];

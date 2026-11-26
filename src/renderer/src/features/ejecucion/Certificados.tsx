@@ -64,7 +64,7 @@ function DetalleCert({ ej, c, setModo }: { ej: Ejecutora; c: Certificado; setMod
     {tab === 'det' ? <>
       <div className="ds-card ds-kv">
         <div>{kv('Secuencia', pad(s.sec, 4) + (s.sec > 1 ? ' · ' + etq.toUpperCase() : ''))}{kv('Documento', s.doc.cod + ' - ' + docNom(s.doc.cod))}{kv('Número', s.doc.num)}{kv('Fecha', s.doc.fecha)}{kv('Rubro', c.rubro + ' - ' + rubroNom(c.rubro))}</div>
-        <div>{kv('Estado', s.estado)}{kv('Moneda', 'NUEVO SOL')}{kv('Tipo certificación', c.tipoCert)}{kv('Referencia', 'OTROS')}{kv('Dispositivo legal', c.disp || 'OTROS')}</div>
+        <div>{kv('Estado', s.estado)}{kv('Moneda', 'NUEVO SOL')}{kv('Tipo certificación', c.tipoCert)}{kv('Referencia', 'OTROS')}{kv('Dispositivo legal', c.disp || '0-OTROS')}</div>
         {kv('Justificación', c.justif, true)}
       </div>
       <div className="ds-sumas"><div><small>Monto Certificado (+)</small><b>{fmt(sumI(s0.items))}</b></div><div><small>Modificaciones del certificado (+ -)</small><b>{fmt(modsMonto)}</b></div><div><small>Suma de CA registrados (-)</small><b>{fmt(comp)}</b></div><div><small>Saldo por comprometer</small><b className="red">{fmt(tot - comp)}</b></div></div>
@@ -88,7 +88,7 @@ type Fila = Item & { montoTxt: string };
 
 function FormCertificado({ ej, cert, cerrar }: { ej: Ejecutora; cert?: Certificado; cerrar: (id?: string) => void }) {
   const sc = CASOS[ej.id].subcasos.find(s => s.id === ej.sub)!;
-  const [d, setD] = useState({ doc: cert?.doc.cod || '086', num: cert?.doc.num || '', fecha: cert?.doc.fecha || ej.fechaSis, rubro: cert?.rubro || (sc.ingreso ? rubrosCtx(ej)[0][0] : sc.rubro), tipoCert: cert?.tipoCert || 'OTROS', disp: cert?.disp || '', justif: cert?.justif || '' });
+  const [d, setD] = useState({ doc: cert?.doc.cod || '086', num: cert?.doc.num || '', fecha: cert?.doc.fecha || ej.fechaSis, rubro: cert?.rubro || (sc.ingreso ? rubrosCtx(ej)[0][0] : sc.rubro), tipoCert: cert?.tipoCert || 'OTROS', disp: cert?.disp || '0-OTROS', justif: cert?.justif || '' });
   const [items, setItems] = useState<Fila[]>((cert?.secs[0].items || []).map(i => ({ ...i, montoTxt: String(i.monto) })));
   const [pca, setPca] = useState(false);
   const set = (k: keyof typeof d) => (v: string) => setD({ ...d, [k]: v });
@@ -108,7 +108,7 @@ function FormCertificado({ ej, cert, cerrar }: { ej: Ejecutora; cert?: Certifica
       <Grid>
         <Lista label="Documento" c={6} req value={d.doc} onChange={set('doc')} opciones={CAT.docsCert as [string, string][]} /><Campo label="Número" c={3} req={d.doc !== '000'} value={d.num} onChange={set('num')} /><Campo label="Fecha" c={3} req value={d.fecha} onChange={set('fecha')} ph="dd/mm/aaaa" />
         <Lista label="Rubro" c={6} req value={d.rubro} onChange={v => { setD({ ...d, rubro: v }); setItems([]); }} opciones={rubrosDeFuente(ff)} hint={d.rubro && !pim.length ? 'Sin PIM en este rubro: regístrelo en Herramientas › Marco presupuestal.' : undefined} /><Lista label="Tipo certificación" c={6} req value={d.tipoCert} onChange={set('tipoCert')} opciones={CAT.tiposCert} />
-        <Lista label="Fuente de financiamiento" c={6} req value={ff} onChange={cambiarFf} opciones={FUENTES} /><Lista label="Dispositivo legal" c={6} value={d.disp} onChange={set('disp')} vacio="(ninguno)" opciones={['1-LEY Nº 31953 - INDECI', '2-LEY Nº 31953 - FEN']} />
+        <Lista label="Fuente de financiamiento" c={6} req value={ff} onChange={cambiarFf} opciones={FUENTES} /><Lista label="Dispositivo legal" c={6} value={d.disp} onChange={set('disp')} opciones={['0-OTROS', '1-LEY Nº 31953 - INDECI', '2-LEY Nº 31953 - FEN']} />
         <RO label="Moneda" v="S/. - (NUEVO SOL)" /><RO label="Tipo cambio" v="1.0000000000" /><RO label="Monto" v={fmt(total)} />
         <Campo label="Justificación" c={12} req area rows={3} value={d.justif} onChange={set('justif')} hint={MSG_JUSTIF} />
       </Grid>
